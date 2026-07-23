@@ -1,6 +1,5 @@
 #include "juego.h"
-#include "jugadorhumano.h"   // Necesario para usar dynamic_cast.
-
+#include "jugadorhumano.h" // Necesario para usar dynamic_cast.
 
 // ==========================
 // Constructor
@@ -23,7 +22,6 @@ Juego::Juego(Jugador *jugador1, Jugador *jugador2)
     mensajeEstado = "Seleccione un elemento";
 }
 
-
 // ==========================
 // El jugador selecciona una carta.
 // ==========================
@@ -34,7 +32,6 @@ void Juego::seleccionarElemento(int indice)
 
     // Si realmente era un JugadorHumano...
     if (humano) {
-
         // Guarda qué elemento eligió.
         humano->seleccionarPorIndice(indice);
 
@@ -49,7 +46,6 @@ void Juego::seleccionarElemento(int indice)
     }
 }
 
-
 // ==========================
 // Devuelve el elemento activo del jugador.
 // ==========================
@@ -57,7 +53,6 @@ Elemento *Juego::getElementoActivoJugador()
 {
     return elementoActivoJugador;
 }
-
 
 // ==========================
 // Devuelve el elemento activo de la IA.
@@ -67,17 +62,14 @@ Elemento *Juego::getElementoActivoIA()
     return elementoActivoIA;
 }
 
-
 // ==========================
 // Verifica si ambos eligieron.
 // ==========================
 bool Juego::hayElementosSeleccionados()
 {
     // nullptr significa "no apunta a ningún objeto".
-    return elementoActivoJugador != nullptr &&
-           elementoActivoIA != nullptr;
+    return elementoActivoJugador != nullptr && elementoActivoIA != nullptr;
 }
-
 
 // ==========================
 // Ejecuta un turno.
@@ -91,25 +83,23 @@ void Juego::resolverTurno()
 
     // El jugador ataca primero.
     if (elementoActivoJugador->estaVivo()) {
-        sistema.aplicarDanio(*elementoActivoJugador,
-                             *elementoActivoIA);
+        sistema.aplicarDanio(*elementoActivoJugador, *elementoActivoIA);
     }
 
     // Si la IA sigue viva, contraataca.
     if (elementoActivoIA->estaVivo()) {
-        sistema.aplicarDanio(*elementoActivoIA,
-                             *elementoActivoJugador);
+        sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
     }
 
     // Si la IA perdió su elemento,
-    // selecciona otro automáticamente.
+    // selecciona otro automáticamente y ataca.
     if (iaDebeCambiar()) {
         elementoActivoIA = &jugador2->seleccionarElemento();
+        sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
     }
 
     mensajeEstado = "Turno finalizado";
 }
-
 
 // ==========================
 // Devuelve el mensaje.
@@ -118,7 +108,6 @@ QString Juego::getMensajeEstado() const
 {
     return mensajeEstado;
 }
-
 
 // ==========================
 // Borra la selección.
@@ -131,7 +120,6 @@ void Juego::cancelarSeleccion()
 
     mensajeEstado = "Seleccione un elemento";
 }
-
 
 // ==========================
 // ¿El jugador debe cambiar?
@@ -146,7 +134,6 @@ bool Juego::jugadorDebeCambiar() const
     return !elementoActivoJugador->estaVivo();
 }
 
-
 // ==========================
 // ¿La IA debe cambiar?
 // ==========================
@@ -158,7 +145,6 @@ bool Juego::iaDebeCambiar() const
     return !elementoActivoIA->estaVivo();
 }
 
-
 // ==========================
 // ¿Terminó la partida?
 // ==========================
@@ -166,10 +152,8 @@ bool Juego::termino() const
 {
     // Si alguno ya no tiene elementos vivos,
     // el juego terminó.
-    return !jugador1->tieneElementosVivos() ||
-           !jugador2->tieneElementosVivos();
+    return !jugador1->tieneElementosVivos() || !jugador2->tieneElementosVivos();
 }
-
 
 // ==========================
 // ¿Ganó el jugador?
@@ -178,6 +162,5 @@ bool Juego::ganoJugador() const
 {
     // El jugador debe tener elementos vivos
     // y la IA no.
-    return jugador1->tieneElementosVivos() &&
-           !jugador2->tieneElementosVivos();
+    return jugador1->tieneElementosVivos() && !jugador2->tieneElementosVivos();
 }
