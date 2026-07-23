@@ -1,14 +1,13 @@
-#ifndef IAALEATORIA_H          // Evita que el archivo se incluya más de una vez.
+#ifndef IAALEATORIA_H // Evita que el archivo se incluya más de una vez.
 #define IAALEATORIA_H
 
-#include "contrincanteia.h"    // Hereda de la clase ContrincanteIA.
+#include "contrincanteia.h" // Hereda de la clase ContrincanteIA.
 
 // Esta clase representa una IA que elige sus elementos al azar.
 class IAAleatoria : public ContrincanteIA
 {
 public:
-
-    IAAleatoria();             // Constructor.
+    IAAleatoria(); // Constructor.
 
     // Implementa el método heredado.
     // Selecciona un elemento para atacar.

@@ -1,4 +1,4 @@
-#include "sistemacombate.h"   // Incluye la definición de la clase.
+#include "sistemacombate.h" // Incluye la definición de la clase.
 
 // ==============================
 // Constructor
@@ -16,10 +16,8 @@ SistemaCombate::SistemaCombate()
 
     // Recorre todas las filas de la matriz.
     for (int i = 0; i < 5; i++) {
-
         // Recorre todas las columnas.
         for (int j = 0; j < 5; j++) {
-
             // Copia cada valor de la matriz auxiliar
             // hacia la matriz de la clase.
             matrizDanios[i][j] = datos[i][j];

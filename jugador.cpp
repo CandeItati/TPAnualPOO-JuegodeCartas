@@ -1,4 +1,4 @@
-#include "jugador.h"      // Incluye la definición de la clase.
+#include "jugador.h" // Incluye la definición de la clase.
 
 // ==========================
 // Constructor
@@ -19,7 +19,6 @@ void Jugador::repartirElementos()
 
     // Repite cinco veces.
     for (int i = 0; i < 5; i++) {
-
         // Crea un elemento aleatorio y lo agrega al final del vector.
         elementos.push_back(CatalogoElementos::crearElementoAleatorio());
     }
@@ -45,10 +44,8 @@ bool Jugador::tieneElementosVivos() const
     // - No copiar el objeto.
     // - No permitir modificarlo.
     for (const Elemento &elemento : elementos) {
-
         // Si encuentra uno vivo...
         if (elemento.estaVivo()) {
-
             // ...ya puede devolver verdadero.
             return true;
         }

@@ -1,4 +1,4 @@
-#include "contrincanteia.h"      // Incluye la definición de la clase.
+#include "contrincanteia.h" // Incluye la definición de la clase.
 
 // ==========================
 // Constructor

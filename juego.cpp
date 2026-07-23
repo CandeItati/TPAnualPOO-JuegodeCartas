@@ -38,12 +38,15 @@ void Juego::seleccionarElemento(int indice)
         // Obtiene un puntero al elemento elegido.
         elementoActivoJugador = &humano->seleccionarElemento();
 
-        // La IA elige automáticamente su elemento.
-        elementoActivoIA = &jugador2->seleccionarElemento();
-
         // Actualiza el mensaje mostrado en pantalla.
         mensajeEstado = "La IA está eligiendo un elemento...";
     }
+
+    // Condicional para evitar que la IA cambie de carta, si el jugador tambien cambia.
+    if (elementoActivoIA==nullptr){
+        elementoActivoIA = &jugador2->seleccionarElemento();
+    }
+
 }
 
 // ==========================
@@ -114,7 +117,7 @@ QString Juego::getMensajeEstado() const
 // ==========================
 void Juego::cancelarSeleccion()
 {
-    // Ambos punteros dejan de apuntar a un elemento.
+    // Ambos punteros apuntan a null para cambiar el elemento activo.
     elementoActivoJugador = nullptr;
     elementoActivoIA = nullptr;
 
@@ -160,7 +163,6 @@ bool Juego::termino() const
 // ==========================
 bool Juego::ganoJugador() const
 {
-    // El jugador debe tener elementos vivos
-    // y la IA no.
-    return jugador1->tieneElementosVivos() && !jugador2->tieneElementosVivos();
+    // El jugador debe tener elementos vivos y la IA no.
+    return !jugador1->tieneElementosVivos() && !jugador2->tieneElementosVivos();
 }

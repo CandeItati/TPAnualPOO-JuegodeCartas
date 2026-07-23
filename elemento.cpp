@@ -1,14 +1,14 @@
-#include "elemento.h"      // Incluye la definición de la clase Elemento.
+#include "elemento.h" // Incluye la definición de la clase Elemento.
 
 // =========================
 // Constructor por defecto
 // =========================
 Elemento::Elemento()
 {
-    nombre = "";           // El nombre comienza vacío.
-    vida = 100;            // Todos los elementos comienzan con 100 de vida.
-    tipoAtaque = FUEGO;    // Tipo de ataque por defecto.
-    tipoDefensa = FUEGO;   // Tipo de defensa por defecto.
+    nombre = "";         // El nombre comienza vacío.
+    vida = 100;          // Todos los elementos comienzan con 100 de vida.
+    tipoAtaque = FUEGO;  // Tipo de ataque por defecto.
+    tipoDefensa = FUEGO; // Tipo de defensa por defecto.
 }
 
 // =========================
@@ -16,12 +16,12 @@ Elemento::Elemento()
 // =========================
 Elemento::Elemento(QString nombre, TipoElemento Ataque, TipoElemento Defensa)
 {
-    this->nombre = nombre;         // Guarda el nombre recibido.
+    this->nombre = nombre; // Guarda el nombre recibido.
 
-    this->vida = 100;              // Siempre comienza con 100 de vida.
+    this->vida = 100; // Siempre comienza con 100 de vida.
 
-    this->tipoAtaque = Ataque;     // Guarda el tipo de ataque recibido.
-    this->tipoDefensa = Defensa;   // Guarda el tipo de defensa recibido.
+    this->tipoAtaque = Ataque;   // Guarda el tipo de ataque recibido.
+    this->tipoDefensa = Defensa; // Guarda el tipo de defensa recibido.
 }
 
 // Devuelve la vida actual.
@@ -51,7 +51,7 @@ TipoElemento Elemento::obtenerDefensa() const
 // Resta la cantidad de daño recibida.
 void Elemento::recibirDanio(int danio)
 {
-    vida -= danio;          // Equivale a: vida = vida - danio;
+    vida -= danio; // Equivale a: vida = vida - danio;
 
     // Si la vida quedó negativa, se deja en 0.
     if (vida < 0) {

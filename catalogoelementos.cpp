@@ -1,8 +1,6 @@
-#include "catalogoelementos.h"   // Incluye la definición de la clase.
+#include "catalogoelementos.h" // Incluye la definición de la clase.
 
-#include <QRandomGenerator>      // Permite generar números aleatorios.
-
-
+#include <QRandomGenerator> // Permite generar números aleatorios.
 
 // ===============================================
 // Catálogo de elementos disponibles.
@@ -10,8 +8,7 @@
 
 // Se define el arreglo declarado en el .h.
 // Cada posición representa un elemento distinto.
-const CatalogoElementos::DatosElemento CatalogoElementos::elementos[11]=
-    {
+const CatalogoElementos::DatosElemento CatalogoElementos::elementos[11] = {
 
     // Elementos simples
     {"Agua", AGUA, AGUA},
@@ -26,10 +23,7 @@ const CatalogoElementos::DatosElemento CatalogoElementos::elementos[11]=
     {"Tormenta", RAYO, AGUA},
     {"Pantano", AGUA, TIERRA},
     {"Glaciar", HIELO, AGUA},
-    {"Plasma", RAYO, FUEGO}
-};
-
-
+    {"Plasma", RAYO, FUEGO}};
 
 // ===============================================
 // Crea un elemento aleatorio.
@@ -42,13 +36,8 @@ Elemento CatalogoElementos::crearElementoAleatorio()
 
     // Usa la información almacenada en el catálogo
     // para construir un nuevo objeto Elemento.
-    return Elemento(
-        elementos[indice].nombre,
-        elementos[indice].ataque,
-        elementos[indice].defensa);
+    return Elemento(elementos[indice].nombre, elementos[indice].ataque, elementos[indice].defensa);
 }
-
-
 
 // ===============================================
 // Constructor

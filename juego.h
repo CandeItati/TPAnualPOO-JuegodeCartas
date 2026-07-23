@@ -1,7 +1,7 @@
-#ifndef JUEGO_H                // Evita que el archivo se incluya dos veces.
+#ifndef JUEGO_H // Evita que el archivo se incluya dos veces.
 #define JUEGO_H
 
-#include <QString>             // Permite utilizar QString.
+#include <QString> // Permite utilizar QString.
 
 #include "catalogoelementos.h" // Incluye el catálogo de elementos.
 #include "jugador.h"           // Incluye la clase Jugador.
@@ -11,7 +11,6 @@
 class Juego
 {
 public:
-
     // Constructor.
     // Recibe dos jugadores (humano e IA).
     Juego(Jugador *jugador1, Jugador *jugador2);
@@ -50,7 +49,6 @@ public:
     QString getMensajeEstado() const;
 
 private:
-
     // Punteros a los jugadores.
     Jugador *jugador1;
     Jugador *jugador2;

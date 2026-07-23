@@ -1,12 +1,12 @@
-#ifndef MAINWINDOW_H          // Evita incluir este archivo más de una vez.
+#ifndef MAINWINDOW_H // Evita incluir este archivo más de una vez.
 #define MAINWINDOW_H
 
-#include <QMainWindow>        // Clase base de todas las ventanas de Qt.
-#include "juego.h"            // Se utilizará un objeto Juego.
+#include <QMainWindow> // Clase base de todas las ventanas de Qt.
+#include "juego.h"     // Se utilizará un objeto Juego.
 
-QT_BEGIN_NAMESPACE            // Macro de Qt.
+QT_BEGIN_NAMESPACE // Macro de Qt.
 namespace Ui {
-class MainWindow;             // Declaración adelantada de la interfaz generada por Qt Designer.
+class MainWindow; // Declaración adelantada de la interfaz generada por Qt Designer.
 }
 QT_END_NAMESPACE
 
@@ -14,17 +14,16 @@ QT_END_NAMESPACE
 // Es la ventana principal de la aplicación.
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT                  // Macro obligatoria para utilizar señales y slots de Qt.
+    Q_OBJECT // Macro obligatoria para utilizar señales y slots de Qt.
 
 public:
-
     // Constructor.
     explicit MainWindow(QWidget *parent = nullptr);
 
     // Destructor.
     ~MainWindow() override;
 
-private slots:                // Funciones que responden a eventos de la interfaz.
+private slots: // Funciones que responden a eventos de la interfaz.
 
     // Se ejecutan cuando el usuario presiona uno de los botones
     // para elegir un elemento.
@@ -41,7 +40,6 @@ private slots:                // Funciones que responden a eventos de la interfa
     void on_btnCambiar_clicked();
 
 private:
-
     // Puntero a todos los controles creados por Qt Designer.
     Ui::MainWindow *ui;
 

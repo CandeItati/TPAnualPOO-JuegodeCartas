@@ -1,4 +1,4 @@
-#include "jugadorhumano.h"      // Incluye la definición de la clase.
+#include "jugadorhumano.h" // Incluye la definición de la clase.
 
 // ==========================
 // Constructor
