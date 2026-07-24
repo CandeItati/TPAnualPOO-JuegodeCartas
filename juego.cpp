@@ -69,7 +69,6 @@ Elemento *Juego::getElementoActivoIA()
 // ==========================
 bool Juego::hayElementosSeleccionados()
 {
-    // nullptr significa "no apunta a ningún objeto".
     return elementoActivoJugador != nullptr && elementoActivoIA != nullptr;
 }
 
@@ -82,27 +81,29 @@ void Juego::resolverTurno()
     if (!hayElementosSeleccionados()) {
         return;
     }
+    //Mensaje nuevo
+    mensajeEstado.clear();
 
     // El jugador ataca primero.
     if (elementoActivoJugador->estaVivo()) {
         sistema.aplicarDanio(*elementoActivoJugador, *elementoActivoIA);
+        mensajeEstado += elementoActivoJugador->obtenerNombre() + " ataco a " + elementoActivoIA->obtenerNombre();
     }
 
     // Si la IA sigue viva, contraataca.
     if (elementoActivoIA->estaVivo()) {
         sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
-    }
+        mensajeEstado+= "\n";
+        mensajeEstado + elementoActivoIA->obtenerNombre() + " ataco a " + elementoActivoJugador->obtenerNombre();
 
+    }
     // Si la IA perdió su elemento,
     // selecciona otro automáticamente y ataca.
     if (iaDebeCambiar()) {
-        //cambio
         elementoActivoIA = nullptr;
         elementoActivoIA = &jugador2->seleccionarElemento();
         sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
     }
-
-    mensajeEstado = "Turno finalizado";
 }
 
 // ==========================
@@ -166,11 +167,4 @@ bool Juego::ganoJugador() const
 {
     // El jugador debe tener elementos vivos y la IA no.
     return !jugador1->tieneElementosVivos() && !jugador2->tieneElementosVivos();
-}
-
-void Juego::iniciarEnfrentamiento(){
-    // Condicional para evitar que la IA cambie de carta, si el jugador tambien cambia.
-    if (elementoActivoIA == nullptr) {
-        elementoActivoIA = &jugador2->seleccionarElemento();
-    }
 }

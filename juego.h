@@ -48,8 +48,6 @@ public:
     // Devuelve el mensaje que mostrará la interfaz.
     QString getMensajeEstado() const;
 
-    void iniciarEnfrentamiento();
-
 private:
     // Punteros a los jugadores.
     Jugador *jugador1;
