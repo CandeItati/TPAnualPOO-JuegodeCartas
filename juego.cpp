@@ -43,10 +43,9 @@ void Juego::seleccionarElemento(int indice)
     }
 
     // Condicional para evitar que la IA cambie de carta, si el jugador tambien cambia.
-    if (elementoActivoIA==nullptr){
+    if (elementoActivoIA == nullptr) {
         elementoActivoIA = &jugador2->seleccionarElemento();
     }
-
 }
 
 // ==========================

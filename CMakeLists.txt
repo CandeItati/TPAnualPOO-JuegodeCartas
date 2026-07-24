@@ -31,8 +31,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         jugadorhumano.h jugadorhumano.cpp
         enums.h
         iaaleatoria.h iaaleatoria.cpp
-        iaestrategica.h iaestrategica.cpp
-        catalogoelementos.h catalogoelementos.cpp
+                catalogoelementos.h catalogoelementos.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Pruebas APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
