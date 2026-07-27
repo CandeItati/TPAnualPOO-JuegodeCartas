@@ -1,68 +1,72 @@
-#ifndef MAINWINDOW_H // Evita incluir este archivo más de una vez.
+#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow> // Clase base de todas las ventanas de Qt.
-#include "juego.h"     // Se utilizará un objeto Juego.
+#include <QMainWindow>
+#include <QGraphicsScene>
+#include <QGraphicsProxyWidget>
+#include <QPushButton>
+#include <vector>
+#include <QLabel>
 
-QT_BEGIN_NAMESPACE // Macro de Qt.
-namespace Ui {
-class MainWindow; // Declaración adelantada de la interfaz generada por Qt Designer.
-}
+#include "juego.h"
+#include "cartagraphicsitem.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-// MainWindow hereda de QMainWindow.
-// Es la ventana principal de la aplicación.
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT // Macro obligatoria para utilizar señales y slots de Qt.
+    Q_OBJECT
 
 public:
-    // Constructor.
     explicit MainWindow(QWidget *parent = nullptr);
-
-    // Destructor.
     ~MainWindow() override;
 
-private slots: // Funciones que responden a eventos de la interfaz.
-
-    // Se ejecutan cuando el usuario presiona uno de los botones
-    // para elegir un elemento.
-    void on_PBelemento1_clicked();
-    void on_PBelemento2_clicked();
-    void on_PBelemento3_clicked();
-    void on_PBelemento4_clicked();
-    void on_PBelemento5_clicked();
-
-    // Se ejecuta cuando se presiona Atacar.
-    void on_btnAtacar_clicked();
-
-    // Se ejecuta cuando se presiona Cambiar.
-    void on_btnCambiar_clicked();
+private slots:
+    void onCartaJugadorClickeada(CartaGraphicsItem* carta);
+    void onBtnAtacarClicked();
+    void resolverCambioDeCartaIA();
 
 private:
-    // Puntero a todos los controles creados por Qt Designer.
     Ui::MainWindow *ui;
 
-    // Objeto que controla toda la lógica del juego.
     Juego *juego;
-
-    // Jugador humano.
     Jugador *jugador1;
-
-    // Inteligencia artificial.
     Jugador *jugador2;
 
-    // Actualiza toda la interfaz.
+    QGraphicsScene *escena;
+    std::vector<CartaGraphicsItem*> cartasJugador;
+    std::vector<CartaGraphicsItem*> cartasIA;
+    CartaGraphicsItem* cartaActivaJugador = nullptr;
+    CartaGraphicsItem* cartaActivaIA = nullptr;
+
+    QPushButton *btnAtacarCircular;
+    QGraphicsProxyWidget *proxyBtnAtacar;
+    QGraphicsTextItem *lblVS;
+
+    const int anchoEscena = 980;
+    const int alturaEscena = 700;
+
+    void iniciarEscena();
+    void colocarManoJugador();
+    void mostrarDanioFlotante(int danio, QPointF posicion);
+    void colocarManoIA();
     void actualizarPantalla();
+    void mostrarFinDePartida();
+    int indiceDeElemento(const std::vector<Elemento>& elementos, Elemento* buscado);
+    bool retrasarSalidaCartaJugador = false;
 
-    // Muestra únicamente los botones de selección.
-    void mostrarSeleccionElementos();
+    QWidget *overlayResultado = nullptr;
+    QLabel  *lblResultadoTitulo = nullptr;
+    QLabel  *lblResultadoSubtitulo = nullptr;
+    QLabel *lblImagenResultado = nullptr;
+    void crearOverlayResultado();
 
-    // Muestra únicamente los botones de acción.
-    void mostrarAcciones();
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
-    // Función auxiliar para seleccionar un elemento.
-    void seleccionarElemento(int indice);
 };
 
-#endif // MAINWINDOW_H
+#endif

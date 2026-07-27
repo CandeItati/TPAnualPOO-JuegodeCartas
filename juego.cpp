@@ -81,7 +81,7 @@ void Juego::resolverTurno()
     if (!hayElementosSeleccionados()) {
         return;
     }
-    //Mensaje nuevo
+
     mensajeEstado.clear();
 
     // El jugador ataca primero.
@@ -93,18 +93,44 @@ void Juego::resolverTurno()
     // Si la IA sigue viva, contraataca.
     if (elementoActivoIA->estaVivo()) {
         sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
-        mensajeEstado+= "\n";
-        mensajeEstado + elementoActivoIA->obtenerNombre() + " ataco a " + elementoActivoJugador->obtenerNombre();
-
+        mensajeEstado += "\n";
+        mensajeEstado += elementoActivoIA->obtenerNombre() + " ataco a " + elementoActivoJugador->obtenerNombre();
     }
-    // Si la IA perdió su elemento,
-    // selecciona otro automáticamente y ataca.
-    if (iaDebeCambiar()) {
-        elementoActivoIA = nullptr;
+
+    // OJO: el cambio de carta de la IA (si murió) ya NO pasa acá.
+    // Se resuelve aparte, en resolverCambioIA().
+}
+
+// ==========================
+// ¿La IA necesita elegir una carta nueva y atacar con ella?
+// ==========================
+bool Juego::iaNecesitaCambiarYAtacar() const
+{
+    return iaDebeCambiar() && jugador2->tieneElementosVivos();
+}
+
+// ==========================
+// Segundo paso del turno: la IA cambia de carta (si la
+// anterior murió) y ataca con la nueva, para no perder el turno.
+// ==========================
+void Juego::resolverCambioIA()
+{
+    mensajeEstado.clear();
+
+    elementoActivoIA = nullptr;
+    if (jugador2->tieneElementosVivos()) {
         elementoActivoIA = &jugador2->seleccionarElemento();
-        sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
+        mensajeEstado = "La IA elige una nueva carta: " + elementoActivoIA->obtenerNombre();
+
+        if (elementoActivoJugador && elementoActivoJugador->estaVivo()) {
+            sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
+            mensajeEstado += "\n";
+            mensajeEstado += elementoActivoIA->obtenerNombre() + " ataco a " + elementoActivoJugador->obtenerNombre();
+        }
     }
 }
+
+
 
 // ==========================
 // Devuelve el mensaje.
@@ -165,6 +191,5 @@ bool Juego::termino() const
 // ==========================
 bool Juego::ganoJugador() const
 {
-    // El jugador debe tener elementos vivos y la IA no.
-    return !jugador1->tieneElementosVivos() && !jugador2->tieneElementosVivos();
+    return jugador2->tieneElementosVivos() == false && jugador1->tieneElementosVivos() == true;
 }
