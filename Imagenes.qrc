@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>Imagenes/FondoCarta2-sinfondo.png</file>
+        <file>Imagenes/FondoCarta3-sinfondo.png</file>
+        <file>Imagenes/Tablero2.png</file>
+        <file>Imagenes/ELEMENTOS/AGUA.png</file>
+        <file>Imagenes/ELEMENTOS/FUEGO.png</file>
+        <file>Imagenes/ELEMENTOS/GLACIAR.png</file>
+        <file>Imagenes/ELEMENTOS/HIELO.png</file>
+        <file>Imagenes/ELEMENTOS/LAVA.png</file>
+        <file>Imagenes/ELEMENTOS/PANTANO.png</file>
+        <file>Imagenes/ELEMENTOS/PLASMA.png</file>
+        <file>Imagenes/ELEMENTOS/RAYO.png</file>
+        <file>Imagenes/ELEMENTOS/TIERRA.png</file>
+        <file>Imagenes/ELEMENTOS/TORMENTA.png</file>
+        <file>Imagenes/ELEMENTOS/VAPOR.png</file>
+        <file>Imagenes/Tablero.png</file>
+        <file>Imagenes/Tablero3.png</file>
+        <file>Imagenes/Cuadricula_980x700.png</file>
+        <file>Imagenes/tablero_fondo.png</file>
+        <file>Imagenes/Tablero3_ajustado.png</file>
+        <file>Imagenes/Derrota.png</file>
+    </qresource>
+</RCC>
