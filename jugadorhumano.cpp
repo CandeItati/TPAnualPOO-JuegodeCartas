@@ -6,8 +6,7 @@
 JugadorHumano::JugadorHumano()
 {
     // No hace nada.
-    // elementoSeleccionado ya vale 0 porque fue inicializado
-    // directamente en el archivo .h.
+    // elementoSeleccionado ya vale 0 porque fue inicializado directamente en el archivo .h.
 }
 
 // ==========================
@@ -15,8 +14,7 @@ JugadorHumano::JugadorHumano()
 // ==========================
 Elemento &JugadorHumano::seleccionarElemento()
 {
-    // Devuelve una referencia al elemento cuya posición
-    // está almacenada en elementoSeleccionado.
+    // Devuelve una referencia al elemento cuya posición está almacenada en elementoSeleccionado.
     return elementos[elementoSeleccionado];
 }
 
@@ -29,8 +27,7 @@ Elemento &JugadorHumano::seleccionarContra(const Elemento &enemigo)
     // Evita que el compilador muestre una advertencia.
     Q_UNUSED(enemigo);
 
-    // El jugador humano simplemente usa el elemento
-    // que el usuario haya seleccionado previamente.
+    // El jugador humano simplemente usa el elemento que el usuario haya seleccionado previamente.
     return seleccionarElemento();
 }
 

@@ -14,28 +14,23 @@ public:        // Métodos públicos.
 
     // Destructor virtual.
     // Es importante porque esta clase será heredada por otras.
-    // Cuando se elimine un Jugador mediante un puntero,
-    // también se ejecutará correctamente el destructor de la clase hija.
+    // Cuando se elimine un Jugador mediante un puntero, también se ejecutará correctamente el destructor de la clase hija.
     virtual ~Jugador() = default;
 
     // Reparte 5 elementos aleatorios al jugador.
     void repartirElementos();
 
     // Devuelve el vector de elementos.
-    // Se devuelve por referencia constante para evitar copiar el vector
-    // y para impedir que sea modificado desde afuera.
+    // Se devuelve por referencia constante para evitar copiar el vector y para impedir que sea modificado desde afuera.
     const vector<Elemento> &getElementos() const;
 
     // Devuelve true si al menos un elemento sigue vivo.
     bool tieneElementosVivos() const;
 
-    // Método virtual puro.
     // Cada clase hija deberá decidir cómo seleccionar un elemento.
     virtual Elemento &seleccionarElemento() = 0;
 
-    // También es un método virtual puro.
-    // Cada clase hija decidirá cuál es el mejor elemento
-    // para enfrentar al enemigo.
+    // Cada clase hija decidirá cuál es el mejor elemento para enfrentar al enemigo.
     virtual Elemento &seleccionarContra(const Elemento &enemigo) = 0;
 
 protected: // Solo esta clase y sus hijas pueden acceder.

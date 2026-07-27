@@ -11,6 +11,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
+//Constructor
+// Inicializa la ventana principal, crea a los jugadores y el motor del juego.
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -21,13 +23,16 @@ MainWindow::MainWindow(QWidget *parent)
     jugador2 = new IAAleatoria();
     juego = new Juego(jugador1, jugador2);
 
+    //Preparamos elementos de la interfaz.
     iniciarEscena();
     crearOverlayResultado();
     actualizarPantalla();
 
-    ui->textEdit->append("--- ¡Comienza la partida! Elegí tu primera carta ---");
+    //Mensaje inicial del cuadro de combates.
+    ui->textEdit->append(" ¡Comienza la partida! Elegí tu primera carta ");
 }
 
+//Destructor
 MainWindow::~MainWindow()
 {
     delete juego;
@@ -36,7 +41,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-// Busca en qué posición del vector está el Elemento apuntado por 'buscado'
+// Busca en qué posición del vector está el Elemento apuntado por 'buscado'.
 int MainWindow::indiceDeElemento(const std::vector<Elemento>& elementos, Elemento* buscado)
 {
     for (size_t i = 0; i < elementos.size(); i++) {
@@ -45,11 +50,15 @@ int MainWindow::indiceDeElemento(const std::vector<Elemento>& elementos, Element
     return -1;
 }
 
+//Crea escena donde estaran las cartas y configura el fondo.
 void MainWindow::iniciarEscena()
 {
+    //Crea escena.
     escena = new QGraphicsScene(this);
+    //Le asigno tamanio.
     escena->setSceneRect(0, 0, anchoEscena, alturaEscena);
 
+    //Carga imagen de fondo (el tablero).
     QPixmap fondo(":/new/prefix1/Imagenes/Tablero3_ajustado.png");
     QGraphicsPixmapItem* fondoItem = new QGraphicsPixmapItem(
         fondo.scaled(anchoEscena, alturaEscena, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
@@ -59,9 +68,11 @@ void MainWindow::iniciarEscena()
     ui->graphicsViewMesa->setScene(escena);
     ui->graphicsViewMesa->setRenderHint(QPainter::Antialiasing);
 
+    //Dibuja y coloca cartas para ambos jugadores.
     colocarManoJugador();
     colocarManoIA();
 
+    //Crea boton de ataque.
     btnAtacarCircular = new QPushButton("ATACAR");
     btnAtacarCircular->setFixedSize(80, 80);
     btnAtacarCircular->setStyleSheet(
@@ -72,9 +83,10 @@ void MainWindow::iniciarEscena()
                            alturaEscena / 2.0 - CartaGraphicsItem::ALTO / 2.0 + 50);
     proxyBtnAtacar->setVisible(false);
 
+    //Permite interactuar con el boton.
     connect(btnAtacarCircular, &QPushButton::clicked, this, &MainWindow::onBtnAtacarClicked);
 
-    // Texto "VS" en el medio, entre las dos cartas que se enfrentan
+    // Texto "VS" en el medio, entre las dos cartas que se enfrentan.
     lblVS = new QGraphicsTextItem("VS");
     QFont fuenteVS("Arial", 22, QFont::Black);
     lblVS->setFont(fuenteVS);
@@ -85,8 +97,10 @@ void MainWindow::iniciarEscena()
     escena->addItem(lblVS);
 }
 
+//Crea mensaje de resultado de partida.
 void MainWindow::crearOverlayResultado()
 {
+    //Se crean las etiquetas para victoria y derrota.
     overlayResultado = new QWidget(ui->centralwidget);
     overlayResultado->setObjectName("overlayResultado");
     overlayResultado->setStyleSheet(
@@ -118,6 +132,7 @@ void MainWindow::crearOverlayResultado()
     lblResultadoSubtitulo->setFont(QFont("Arial", 14));
     lblResultadoSubtitulo->setStyleSheet("color: white;");
 
+    //Boton para cerrar mensaje.
     auto* btnCerrar = new QPushButton("Cerrar", panel);
     btnCerrar->setFixedSize(110, 34);
     btnCerrar->setStyleSheet(
@@ -125,6 +140,7 @@ void MainWindow::crearOverlayResultado()
         "QPushButton:hover { background-color: #f7dc6f; }");
     connect(btnCerrar, &QPushButton::clicked, overlayResultado, &QWidget::hide);
 
+    //Organiza capas del mensaje final.
     auto* layout = new QVBoxLayout(panel);
     layout->addStretch();
     layout->addWidget(lblResultadoTitulo);
@@ -138,6 +154,7 @@ void MainWindow::crearOverlayResultado()
     layoutOverlay->addWidget(panel, 0, Qt::AlignCenter);
 }
 
+//Crea las representaciones graficas de las cartas del jugador, que se colocan en la parte inferior.
 void MainWindow::colocarManoJugador()
 {
     const std::vector<Elemento>& elementos = jugador1->getElementos();
@@ -157,6 +174,7 @@ void MainWindow::colocarManoJugador()
     }
 }
 
+//Crea las representaciones graficas de las cartas de la ia, que se colocan en la parte superior.
 void MainWindow::colocarManoIA()
 {
     const std::vector<Elemento>& elementos = jugador2->getElementos();
@@ -176,6 +194,7 @@ void MainWindow::colocarManoIA()
     }
 }
 
+//Cuando se clickea una carta esta funcion la busca y manda un mensaje confirmando la eleccion en el apartado de 'combates'.
 void MainWindow::onCartaJugadorClickeada(CartaGraphicsItem* carta)
 {
 
@@ -193,6 +212,7 @@ void MainWindow::onCartaJugadorClickeada(CartaGraphicsItem* carta)
     actualizarPantalla();
 }
 
+//Si se hace click en el boton de atacar resuelve el turno y actualiza info en pantalla.
 void MainWindow::onBtnAtacarClicked()
 {
 
@@ -226,15 +246,14 @@ void MainWindow::onBtnAtacarClicked()
     actualizarPantalla();
 
     if (juego->iaNecesitaCambiarYAtacar()) {
-        // La carta de la IA murió: le damos una pausa visual antes de que
-        // elija una nueva y ataque, para que se note con claridad que es
-        // OTRA carta la que está golpeando (y no la que acaba de morir).
+        // La carta de la IA murió: le damos una pausa visual antes de que elija una nueva y ataque, para que se note con claridad que es OTRA carta la que está golpeando (y no la que acaba de morir).
         QTimer::singleShot(700, this, &MainWindow::resolverCambioDeCartaIA);
     } else {
         btnAtacarCircular->setEnabled(!juego->termino());
     }
 }
 
+//Resuelve el cambio de carta de la ia cuando esta pierde una carta en combate.
 void MainWindow::resolverCambioDeCartaIA()
 {
     Elemento* elemJugadorAntes = juego->getElementoActivoJugador();
@@ -251,10 +270,7 @@ void MainWindow::resolverCambioDeCartaIA()
             ui->textEdit->append("<span style='color:#e67e22;'>🔄 " + linea.toHtmlEscaped() + "</span>");
     }
 
-    // Si la carta del jugador murió con este golpe, le pedimos a
-    // actualizarPantalla() que todavía NO la saque del centro: primero
-    // queremos que se vea el número de daño sobre ella, y recién
-    // después dejarla retirarse.
+    // Si la carta del jugador murió con este golpe, le pedimos a actualizarPantalla() que todavía NO la saque del centro: primero queremos que se vea el número de daño sobre ella, y recién después dejarla retirarse.
     retrasarSalidaCartaJugador = true;
     actualizarPantalla();
 
@@ -265,8 +281,7 @@ void MainWindow::resolverCambioDeCartaIA()
                 mostrarDanioFlotante(danio, posJugadorAntes + QPointF(CartaGraphicsItem::ANCHO / 2 - 15, 10));
         }
 
-        // Un ratito más para que dé tiempo a leer el número antes de
-        // que la carta derrotada recién ahí se retire del centro.
+        // Un ratito más para que dé tiempo a leer el número antes de que la carta derrotada recién ahí se retire del centro.
         QTimer::singleShot(600, this, [this]() {
             retrasarSalidaCartaJugador = false;
             actualizarPantalla();
@@ -275,8 +290,10 @@ void MainWindow::resolverCambioDeCartaIA()
     });
 }
 
+//Se llama constantemente para asegurar que los gráficos (cartas en pantalla, vidas, posiciones) reflejen exactamente lo que está pasando en la partida.
 void MainWindow::actualizarPantalla()
 {
+    //Actualiza vida de las cartas.
     const std::vector<Elemento>& elementosJugador = jugador1->getElementos();
     const std::vector<Elemento>& elementosIA = jugador2->getElementos();
 
@@ -285,6 +302,7 @@ void MainWindow::actualizarPantalla()
     for (size_t i = 0; i < cartasIA.size(); i++)
         cartasIA[i]->actualizarVida(elementosIA[i].obtenerVida());
 
+    // Revisa si hay peleadores en el centro y busca cuáles son sus equivalentes gráficos.
     if (juego->hayElementosSeleccionados()) {
         Elemento* activoJugador = juego->getElementoActivoJugador();
         Elemento* activoIA = juego->getElementoActivoIA();
@@ -300,6 +318,8 @@ void MainWindow::actualizarPantalla()
         QPointF posJugadorCentro(centro.x() - CartaGraphicsItem::ANCHO - separacion / 2.0, centro.y());
         QPointF posIACentro(centro.x() + separacion / 2.0, centro.y());
 
+        // Si hay un cambio en la carta elegida por el jugador: Primero devuelve a la mano la carta anterior (si había una y sigue viva).
+        // Luego mueve la nueva carta al centro, la pone por delante de todo y la bloquea para que no se pueda clickear accidentalmente mientras pelea.
         if (nuevaActivaJugador != cartaActivaJugador) {
             if (cartaActivaJugador) {
                 cartaActivaJugador->volverAFila();
@@ -329,6 +349,7 @@ void MainWindow::actualizarPantalla()
             }
         }
 
+        //Devuelve las cartas eliminadas a la mano del jugador/ia.
         if (cartaActivaJugador && cartaActivaJugador->estaDerrotada() && !retrasarSalidaCartaJugador) {
             cartaActivaJugador->volverAFila();
             cartaActivaJugador->establecerEnCombate(false);
@@ -349,6 +370,8 @@ void MainWindow::actualizarPantalla()
         lblVS->setVisible(false);
     }
 
+    //Activa boton de atacar cuando ambos jugadores seleccionan sus cartas. Lo desactiva durante combates y cuando la partida finaliza.
+
     bool mostrarBoton = !juego->termino() && juego->hayElementosSeleccionados()
                         && !juego->jugadorDebeCambiar();
     proxyBtnAtacar->setVisible(mostrarBoton);
@@ -358,6 +381,7 @@ void MainWindow::actualizarPantalla()
     }
 }
 
+//Muestra mensaje de victorio o derrota.
 void MainWindow::mostrarFinDePartida()
 {
     proxyBtnAtacar->setVisible(false);
@@ -390,6 +414,7 @@ void MainWindow::mostrarFinDePartida()
     overlayResultado->show();
 }
 
+// Se ejecuta automáticamente cada vez que el usuario maximiza o cambia el tamaño de la ventana, para mantener la escala.
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     QMainWindow::resizeEvent(event);
@@ -399,14 +424,19 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         overlayResultado->setGeometry(ui->centralwidget->rect());
 }
 
+//Ajusta la escena cuando comienza el juego.
 void MainWindow::showEvent(QShowEvent *event)
 {
     QMainWindow::showEvent(event);
     if (escena)
         ui->graphicsViewMesa->fitInView(escena->sceneRect(), Qt::KeepAspectRatio);
 }
+
+// Crea un texto temporal encima de la carta que acaba de recibir un ataque.
+// Anima este texto para que suba lentamente mientras se vuelve transparente (efecto fantasma).
 void MainWindow::mostrarDanioFlotante(int danio, QPointF posicion)
 {
+    //Configura texto.
     auto* texto = new QGraphicsTextItem(QString("-%1").arg(danio));
     texto->setDefaultTextColor(QColor(0xe7, 0x4c, 0x3c));
     QFont f = texto->font();
@@ -417,17 +447,20 @@ void MainWindow::mostrarDanioFlotante(int danio, QPointF posicion)
     texto->setZValue(50);
     escena->addItem(texto);
 
+    //Animacion de movimiento.
     auto* animPos = new QPropertyAnimation(texto, "pos");
     animPos->setDuration(900);
     animPos->setStartValue(posicion);
     animPos->setEndValue(posicion - QPointF(0, 50));
     animPos->setEasingCurve(QEasingCurve::OutCubic);
 
+    // Animación de Opacidad
     auto* animOpacidad = new QPropertyAnimation(texto, "opacity");
     animOpacidad->setDuration(900);
     animOpacidad->setStartValue(1.0);
     animOpacidad->setEndValue(0.0);
 
+    //Ejecuta ambas animaciones al mismo tiempo.
     auto* grupo = new QParallelAnimationGroup(this);
     grupo->addAnimation(animPos);
     grupo->addAnimation(animOpacidad);

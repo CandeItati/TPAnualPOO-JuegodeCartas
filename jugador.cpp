@@ -51,7 +51,6 @@ bool Jugador::tieneElementosVivos() const
         }
     }
 
-    // Si terminó el recorrido y ninguno estaba vivo,
-    // devuelve falso.
+    // Si terminó el recorrido y ninguno estaba vivo, devuelve falso.
     return false;
 }

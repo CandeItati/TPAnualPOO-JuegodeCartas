@@ -30,12 +30,10 @@ public:
     // Ejecuta un turno completo de combate.
     void resolverTurno();
 
-    // Devuelve true si, tras resolverTurno(), la IA necesita
-    // elegir una carta nueva y atacar con ella (para no perder su turno).
+    // Devuelve true si, tras resolverTurno(), la IA necesita elegir una carta nueva y atacar con ella (para no perder su turno).
     bool iaNecesitaCambiarYAtacar() const;
 
-    // Segundo paso, diferido en el tiempo por la interfaz:
-    // la IA elige una carta nueva (si la anterior murió) y ataca con ella.
+    // Segundo paso, diferido en el tiempo por la interfaz: la IA elige una carta nueva (si la anterior murió) y ataca con ella.
     void resolverCambioIA();
 
     // Borra la selección actual.

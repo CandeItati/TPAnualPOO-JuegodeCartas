@@ -6,18 +6,22 @@
 #include <QPropertyAnimation>
 #include <QCursor>
 
+// CONSTRUCTOR
 CartaGraphicsItem::CartaGraphicsItem(const Elemento& elemento, QGraphicsItem* parent)
     : QGraphicsObject(parent)
 {
+    //Guardamos datos de las cartas.
     nombre = elemento.obtenerNombre();
     vida = elemento.obtenerVida();
     tipoAtaque = elemento.obtenerAtaque();
     tipoDefensa = elemento.obtenerDefensa();
 
+    //Cargamos imagenes, desde resouces, de las cartas.
     imagenElemento.load(":/new/prefix1/Imagenes/ELEMENTOS/" + nombre.toUpper() + ".png");
     marcoNormal.load(":/new/prefix1/Imagenes/FondoCarta2-sinfondo.png");
     marcoHover.load(":/new/prefix1/Imagenes/FondoCarta3-sinfondo.png");
 
+    //Interaccion del mouse sobre la carta.
     setAcceptHoverEvents(true);
     setCursor(Qt::PointingHandCursor);
 
@@ -26,29 +30,18 @@ CartaGraphicsItem::CartaGraphicsItem(const Elemento& elemento, QGraphicsItem* pa
     // Sombra que después vamos a usar para el "brillo" al pasar el mouse
     auto* sombra = new QGraphicsDropShadowEffect();
     sombra->setBlurRadius(0);
-    sombra->setColor(QColor(0xf1c40f)); // amarillo dorado
+    sombra->setColor(QColor(0xf1c40f));
     sombra->setOffset(0, 0);
     setGraphicsEffect(sombra);
 }
 
+//Define el area que ocupa una carta.
 QRectF CartaGraphicsItem::boundingRect() const
 {
     return QRectF(0, 0, ANCHO, ALTO);
 }
 
-// Devuelve un color asociado al tipo elemental (para pintar la carta)
-QColor CartaGraphicsItem::colorTipo(TipoElemento tipo) const
-{
-    switch (tipo) {
-    case FUEGO:  return QColor(0xe74c3c);
-    case AGUA:   return QColor(0x3498db);
-    case TIERRA: return QColor(0x8d6e34);
-    case RAYO:   return QColor(0xf1c40f);
-    case HIELO:  return QColor(0x5dade2);
-    }
-    return QColor(0x7f8c8d);
-}
-
+//Convierte el enumerador a string.
 QString CartaGraphicsItem::nombreTipo(TipoElemento tipo) const
 {
     switch (tipo) {
@@ -61,69 +54,10 @@ QString CartaGraphicsItem::nombreTipo(TipoElemento tipo) const
     return "?";
 }
 
-// Dibuja un ícono simple (llama, gota, etc) usando formas básicas de QPainter
-void CartaGraphicsItem::dibujarIconoElemento(QPainter* painter, TipoElemento tipo, QRectF area)
-{
-    painter->save();
-    painter->setBrush(colorTipo(tipo));
-    painter->setPen(Qt::NoPen);
-
-    QPointF centro = area.center();
-    qreal r = area.width() / 2;
-
-    if (tipo == FUEGO) {
-        // Llama: un triángulo curvo simple con QPainterPath
-        QPainterPath llama;
-        llama.moveTo(centro.x(), area.top());
-        llama.cubicTo(area.left(), centro.y(),
-                      area.left() + r * 0.3, area.bottom(),
-                      centro.x(), area.bottom());
-        llama.cubicTo(area.right() - r * 0.3, area.bottom(),
-                      area.right(), centro.y(),
-                      centro.x(), area.top());
-        painter->drawPath(llama);
-    } else if (tipo == AGUA) {
-        // Gota
-        QPainterPath gota;
-        gota.moveTo(centro.x(), area.top());
-        gota.cubicTo(area.left(), area.top() + r,
-                     area.left(), area.bottom(),
-                     centro.x(), area.bottom());
-        gota.cubicTo(area.right(), area.bottom(),
-                     area.right(), area.top() + r,
-                     centro.x(), area.top());
-        painter->drawPath(gota);
-    } else if (tipo == RAYO) {
-        // Rayo en zigzag
-        QPolygonF rayo;
-        rayo << QPointF(centro.x() + r*0.2, area.top())
-             << QPointF(centro.x() - r*0.4, centro.y())
-             << QPointF(centro.x(), centro.y())
-             << QPointF(centro.x() - r*0.2, area.bottom())
-             << QPointF(centro.x() + r*0.4, centro.y())
-             << QPointF(centro.x(), centro.y());
-        painter->drawPolygon(rayo);
-    } else if (tipo == HIELO) {
-        // Cristal: rombo
-        QPolygonF rombo;
-        rombo << QPointF(centro.x(), area.top())
-              << QPointF(area.right(), centro.y())
-              << QPointF(centro.x(), area.bottom())
-              << QPointF(area.left(), centro.y());
-        painter->drawPolygon(rombo);
-    } else { // TIERRA
-        // Montaña: triángulo
-        QPolygonF montana;
-        montana << QPointF(centro.x(), area.top())
-                << QPointF(area.right(), area.bottom())
-                << QPointF(area.left(), area.bottom());
-        painter->drawPolygon(montana);
-    }
-    painter->restore();
-}
-
+// Método que pinta visualmente la carta en la pantalla.
 void CartaGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*, QWidget*)
 {
+    //Mejora calidad de las cartas.
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setRenderHint(QPainter::SmoothPixmapTransform);
 
@@ -189,6 +123,7 @@ void CartaGraphicsItem::paint(QPainter* painter, const QStyleOptionGraphicsItem*
         nombreTipo(tipoDefensa));
 }
 
+//Mueve la carta cuando entra en combate.
 void CartaGraphicsItem::moverA(QPointF destino, int duracionMs)
 {
     auto* animacion = new QPropertyAnimation(this, "pos");
@@ -199,6 +134,7 @@ void CartaGraphicsItem::moverA(QPointF destino, int duracionMs)
     animacion->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
+// Actualiza la vida de la carta tras un ataque. Si la vida cae a 0 o menos, bloquea la carta marcándola como derrotada y desactiva la interacción.
 void CartaGraphicsItem::actualizarVida(int nuevaVida)
 {
     vida = nuevaVida;
@@ -209,7 +145,7 @@ void CartaGraphicsItem::actualizarVida(int nuevaVida)
     update();
 }
 
-// --- Efecto hover estilo Clash Royale: se agranda y brilla ---
+// Efecto hover estilo Clash Royale: se agranda y brilla.
 void CartaGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent*)
 {
     if (!seleccionable) return;
@@ -233,6 +169,7 @@ void CartaGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent*)
     update();
 }
 
+//Si el mouse no esta encima de la carta esta vuelve a la normalidad.
 void CartaGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent*)
 {
     if (!enHover) return;
@@ -256,22 +193,25 @@ void CartaGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent*)
     update();
 }
 
+// Detecta cuando el jugador presiona la carta con el mouse.
 void CartaGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent*)
 {
     if (seleccionable) emit clickeada(this);
 }
+
+//Devuelve la carta a su posicion luego del combate.
 void CartaGraphicsItem::volverAFila()
 {
     setZValue(0);
     moverA(posicionFila);
 }
+
+// Cambia el estado de la carta cuando es enviada al centro del tablero a pelear.
 void CartaGraphicsItem::establecerEnCombate(bool valor)
 {
     enCombate = valor;
 
-    // Por si el mouse había quedado "arriba" cuando la carta se volvió
-    // no-seleccionable (el hoverLeaveEvent puede no llegar nunca porque
-    // es la CARTA la que se movió, no el mouse): apagamos el brillo a la fuerza.
+    // Por si el mouse había quedado "arriba" cuando la carta se volvió no-seleccionable (el hoverLeaveEvent puede no llegar nunca porque es la CARTA la que se movió, no el mouse): apagamos el brillo a la fuerza
     enHover = false;
     auto* sombra = qobject_cast<QGraphicsDropShadowEffect*>(graphicsEffect());
     if (sombra) {
@@ -282,8 +222,7 @@ void CartaGraphicsItem::establecerEnCombate(bool valor)
         animBrillo->start(QAbstractAnimation::DeleteWhenStopped);
     }
 
-    // El agrandado ahora es independiente del hover: si está en combate, grande;
-    // si no, tamaño normal.
+    // El agrandado ahora es independiente del hover: si está en combate, grande; si no, tamaño normal.
     auto* animEscala = new QPropertyAnimation(this, "scale");
     animEscala->setDuration(200);
     animEscala->setStartValue(scale());

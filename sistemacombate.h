@@ -9,8 +9,7 @@ public:               // Métodos accesibles desde otras clases.
     SistemaCombate(); // Constructor. Inicializa la matriz de daños.
 
     // Calcula cuánto daño le hace un elemento atacante a un defensor.
-    // Se reciben por referencia constante (&) para no copiarlos y para asegurar
-    // que no serán modificados.
+    // Se reciben por referencia constante (&) para no copiarlos y para asegurar que no serán modificados.
     int calcularDanio(const Elemento &atacante, const Elemento &defensor);
 
     // Aplica el daño al defensor.
@@ -19,8 +18,7 @@ public:               // Métodos accesibles desde otras clases.
     void aplicarDanio(Elemento &atacante, Elemento &defensor);
 
 private: // Solo la propia clase puede acceder a estos datos.
-    // Matriz que almacena cuánto daño hace cada tipo de ataque
-    // contra cada tipo de defensa.
+    // Matriz que almacena cuánto daño hace cada tipo de ataque contra cada tipo de defensa.
     int matrizDanios[5][5];
 };
 

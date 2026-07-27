@@ -19,8 +19,7 @@ Elemento &IAAleatoria::seleccionarContra(const Elemento &enemigo)
     // Indica que el parámetro enemigo no será utilizado.
     (void) enemigo;
 
-    // Como esta IA es completamente aleatoria,
-    // simplemente llama al método que selecciona un elemento al azar.
+    // Como esta IA es completamente aleatoria, simplemente llama al método que selecciona un elemento al azar.
     return seleccionarElemento();
 }
 
@@ -29,8 +28,7 @@ Elemento &IAAleatoria::seleccionarContra(const Elemento &enemigo)
 // ==========================
 Elemento &IAAleatoria::seleccionarElemento()
 {
-    // Vector donde se guardarán las posiciones
-    // de los elementos que todavía están vivos.
+    // Vector donde se guardarán las posiciones de los elementos que todavía están vivos.
     std::vector<int> disponibles;
 
     // Recorre todos los elementos del jugador.
@@ -42,8 +40,7 @@ Elemento &IAAleatoria::seleccionarElemento()
         }
     }
 
-    // Genera un número aleatorio entre 0 y
-    // disponibles.size() - 1.
+    // Genera un número aleatorio entre 0 y disponibles.size() - 1.
     int posicion = rand() % disponibles.size();
 
     // Devuelve el elemento ubicado en esa posición.

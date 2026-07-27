@@ -17,9 +17,6 @@ Juego::Juego(Jugador *jugador1, Jugador *jugador2)
     // Al comenzar todavía no hay elementos seleccionados.
     elementoActivoJugador = nullptr;
     elementoActivoIA = nullptr;
-
-    // Mensaje inicial.
-    mensajeEstado = "Seleccione un elemento";
 }
 
 // ==========================
@@ -37,9 +34,6 @@ void Juego::seleccionarElemento(int indice)
 
         // Obtiene un puntero al elemento elegido.
         elementoActivoJugador = &humano->seleccionarElemento();
-
-        // Actualiza el mensaje mostrado en pantalla.
-        mensajeEstado = "La IA está eligiendo un elemento...";
     }
 
     // Condicional para evitar que la IA cambie de carta, si el jugador tambien cambia.
@@ -96,9 +90,6 @@ void Juego::resolverTurno()
         mensajeEstado += "\n";
         mensajeEstado += elementoActivoIA->obtenerNombre() + " ataco a " + elementoActivoJugador->obtenerNombre();
     }
-
-    // OJO: el cambio de carta de la IA (si murió) ya NO pasa acá.
-    // Se resuelve aparte, en resolverCambioIA().
 }
 
 // ==========================
@@ -110,8 +101,7 @@ bool Juego::iaNecesitaCambiarYAtacar() const
 }
 
 // ==========================
-// Segundo paso del turno: la IA cambia de carta (si la
-// anterior murió) y ataca con la nueva, para no perder el turno.
+// Segundo paso del turno: la IA cambia de carta (si la anterior murió) y ataca con la nueva, para no perder el turno.
 // ==========================
 void Juego::resolverCambioIA()
 {
@@ -147,9 +137,6 @@ void Juego::cancelarSeleccion()
 {
     // Ambos punteros apuntan a null para cambiar el elemento activo.
     elementoActivoJugador = nullptr;
-//    elementoActivoIA = nullptr;
-
-    mensajeEstado = "Seleccione un elemento";
 }
 
 // ==========================

@@ -10,13 +10,12 @@ class JugadorHumano : public Jugador
 public:              // Métodos públicos.
     JugadorHumano(); // Constructor.
 
-    // Implementa el método virtual puro heredado de Jugador.
+    // Implementa el método virtual heredado de Jugador.
     // Devuelve el elemento actualmente seleccionado por el usuario.
     Elemento &seleccionarElemento() override;
 
-    // También implementa el segundo método virtual puro.
-    // En este caso simplemente devuelve el elemento seleccionado,
-    // sin analizar al enemigo.
+    // También implementa el segundo método virtual.
+    // En este caso simplemente devuelve el elemento seleccionado, sin analizar al enemigo.
     Elemento &seleccionarContra(const Elemento &enemigo) override;
 
     // Permite cambiar cuál elemento está seleccionado.
@@ -25,8 +24,7 @@ public:              // Métodos públicos.
 
 protected: // Visible para esta clase y futuras clases hijas.
     // Guarda la posición del elemento actualmente seleccionado.
-    // Se inicializa en 0, por lo que al comenzar estará seleccionado
-    // el primer elemento del vector.
+    // Se inicializa en 0, por lo que al comenzar estará seleccionado el primer elemento del vector.
     int elementoSeleccionado = 0;
 };
 
