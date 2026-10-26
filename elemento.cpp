@@ -14,14 +14,12 @@ Elemento::Elemento()
 // =========================
 // Constructor con parámetros
 // =========================
-Elemento::Elemento(QString nombre, TipoElemento Ataque, TipoElemento Defensa)
+Elemento::Elemento(std::string nombre,TipoElemento ataque,TipoElemento defensa)
 {
-    this->nombre = nombre; // Guarda el nombre recibido.
-
-    this->vida = 100; // Siempre comienza con 100 de vida.
-
-    this->tipoAtaque = Ataque;   // Guarda el tipo de ataque recibido.
-    this->tipoDefensa = Defensa; // Guarda el tipo de defensa recibido.
+    this->nombre = nombre;
+    this->vida = 100;
+    this->tipoAtaque = ataque;
+    this->tipoDefensa = defensa;
 }
 
 // Devuelve la vida actual.
@@ -31,7 +29,7 @@ int Elemento::obtenerVida() const
 }
 
 // Devuelve el nombre.
-QString Elemento::obtenerNombre() const
+std::string Elemento::obtenerNombre() const
 {
     return nombre;
 }
@@ -69,4 +67,10 @@ bool Elemento::estaVivo() const
 bool Elemento::esMixto() const
 {
     return tipoAtaque != tipoDefensa;
+}
+
+void Elemento::setVida(
+    int nuevaVida)
+{
+    vida = nuevaVida;
 }

@@ -1,8 +1,16 @@
 #include "mainwindow.h"
+#include "gestorpartidas.h"
 #include "./ui_mainwindow.h"
 
 #include "iaaleatoria.h"
+#include "iaestrategica.h"
+#include "superia.h"
 #include "jugadorhumano.h"
+#include "resultadoataque.h"
+#include "resultadoronda.h"
+#include "lectorconfiguracion.h"
+#include "menuprincipal.h"
+
 #include <QGraphicsTextItem>
 #include <QParallelAnimationGroup>
 #include <QPropertyAnimation>
@@ -10,35 +18,224 @@
 #include <QTimer>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QMessageBox>
+#include <QDir>
+#include <QCoreApplication>
+#include <QFile>
+#include <QInputDialog>
+#include <QMessageBox>
+
 
 //Constructor
 // Inicializa la ventana principal, crea a los jugadores y el motor del juego.
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(
+    const QString& nombreJugador,
+    const QString& tipoIA,
+    QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    jugador1 = new JugadorHumano();
-    jugador2 = new IAAleatoria();
-    juego = new Juego(jugador1, jugador2);
+    ui->lblCombate->setStyleSheet(
+        "QLabel {"
+        "background: transparent;"
+        "color: rgb(235,220,170);"
+        "font-size: 18px;"
+        "font-weight: bold;"
+        "}");
 
-    //Preparamos elementos de la interfaz.
+    ui->lblCombate->setAlignment(
+        Qt::AlignCenter);
+
+    ui->textEdit->setStyleSheet(
+        "QTextEdit {"
+        "background-color: rgb(18,25,40);"
+        "color: rgb(235,220,170);"
+        "border: 2px solid rgb(180,140,60);"
+        "font-size: 14px;"
+        "font-weight: bold;"
+        "padding: 6px;"
+        "}");
+
+    jugador1 = new JugadorHumano();
+
+    jugador1->setNombre(
+        nombreJugador.toStdString());
+
+    configuracion = new Configuracion();
+
+    QString rutaConfig =QDir::cleanPath(QCoreApplication::applicationDirPath()+ "/../../config.txt");
+
+    LectorConfiguracion lector;
+
+    lector.cargarArchivo(rutaConfig,*configuracion);
+
+    QString tipoIAFinal =
+        tipoIA;
+
+    bool fueSorteo =
+        false;
+
+    if(tipoIA == "SORTEO")
+    {
+        fueSorteo = true;
+
+        int valor =
+            rand() % 3;
+
+        if(valor == 0)
+        {
+            tipoIAFinal =
+                "ALEATORIA";
+        }
+        else if(valor == 1)
+        {
+            tipoIAFinal =
+                "ESTRATEGICA";
+        }
+        else
+        {
+            tipoIAFinal =
+                "SUPER";
+        }
+    }
+
+    configuracion->setTipoIA(
+        tipoIAFinal.toStdString());
+
+    if(tipoIAFinal == "ALEATORIA")
+    {
+        jugador2 = new IAAleatoria();
+    }
+    else if(tipoIAFinal == "ESTRATEGICA")
+    {
+        jugador2 = new IAEstrategica();
+    }
+    else if(tipoIAFinal == "SUPER")
+    {
+        jugador2 = new SuperIA();
+    }
+    else
+    {
+        jugador2 = new IAAleatoria();
+    }
+
+    ContrincanteIA* ia =
+        dynamic_cast<ContrincanteIA*>(
+            jugador2);
+
+    if(ia)
+    {
+        ia->setConfiguracion(
+            configuracion);
+    }
+
+    juego = new Juego(jugador1, jugador2, configuracion);
+
+
     iniciarEscena();
     crearOverlayResultado();
     actualizarPantalla();
 
-    //Mensaje inicial del cuadro de combates.
-    ui->textEdit->append(" ¡Comienza la partida! Elegí tu primera carta ");
+    if(fueSorteo)
+    {
+        ui->textEdit->append(
+            QString(
+                "🎲 La IA sorteada fue: %1")
+                .arg(tipoIAFinal));
+    }
+
+    ui->textEdit->append(
+        " ¡Comienza la partida! Elegí tu primera carta ");
+
+    ui->btnGuardarPartida->setText("");
+
+    ui->btnGuardarPartida->setFixedSize(
+        300,
+        70);
+
+    ui->btnGuardarPartida->setStyleSheet(
+        "QPushButton {"
+        "border:none;"
+        "background-color: transparent;"
+        "image: url(:/new/prefix1/Imagenes/Guardar_Partida_NORMAL.png);"
+        "}"
+
+        "QPushButton:hover {"
+        "image: url(:/new/prefix1/Imagenes/Guardar_Partida_HOVER.png);"
+        "}");
+
+    ui->btnVolverMenu->setText("");
+
+    ui->btnVolverMenu->setFixedSize(
+        300,
+        70);
+
+    ui->btnVolverMenu->setStyleSheet(
+        "QPushButton {"
+        "border:none;"
+        "background-color: transparent;"
+        "image: url(:/new/prefix1/Imagenes/VolverMenu_Normal.png);"
+        "}"
+
+        "QPushButton:hover {"
+        "image: url(:/new/prefix1/Imagenes/VolverMenu_Hover.png);"
+        "}");
+}
+
+MainWindow::MainWindow(
+    const EstadoPartida& estado,
+    QWidget *parent)
+    : MainWindow(
+          QString::fromStdString(
+              estado.getNombreJugador()),
+          QString::fromStdString(
+              estado.getTipoIA()),
+          parent)
+{
+    juego->cargarDesdeEstado(
+        estado);
+
+    for(auto* carta : cartasJugador)
+    {
+        escena->removeItem(carta);
+        delete carta;
+    }
+
+    for(auto* carta : cartasIA)
+    {
+        escena->removeItem(carta);
+        delete carta;
+    }
+
+    cartasJugador.clear();
+    cartasIA.clear();
+
+    colocarManoJugador();
+    colocarManoIA();
+
+    cartaActivaJugador = nullptr;
+    cartaActivaIA = nullptr;
+
+    actualizarPantalla();
 }
 
 //Destructor
 MainWindow::~MainWindow()
 {
     delete juego;
+    delete configuracion;
     delete jugador1;
     delete jugador2;
     delete ui;
+}
+
+EstadoPartida
+MainWindow::crearEstadoParaReintento() const
+{
+    return juego->crearEstadoPartida();
 }
 
 // Busca en qué posición del vector está el Elemento apuntado por 'buscado'.
@@ -59,7 +256,7 @@ void MainWindow::iniciarEscena()
     escena->setSceneRect(0, 0, anchoEscena, alturaEscena);
 
     //Carga imagen de fondo (el tablero).
-    QPixmap fondo(":/new/prefix1/Imagenes/Tablero3_ajustado.png");
+    QPixmap fondo(":/new/prefix1/Imagenes/Tablero_SinC.png");
     QGraphicsPixmapItem* fondoItem = new QGraphicsPixmapItem(
         fondo.scaled(anchoEscena, alturaEscena, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     fondoItem->setZValue(-100);
@@ -73,15 +270,25 @@ void MainWindow::iniciarEscena()
     colocarManoIA();
 
     //Crea boton de ataque.
-    btnAtacarCircular = new QPushButton("ATACAR");
-    btnAtacarCircular->setFixedSize(80, 80);
+    btnAtacarCircular = new QPushButton();
+    btnAtacarCircular->setFixedSize(200, 120);
     btnAtacarCircular->setStyleSheet(
-        "QPushButton { background-color: #c0392b; color: white; border-radius: 40px; font-weight: bold; }"
-        "QPushButton:hover { background-color: #e74c3c; }");
+        "QPushButton {"
+        "border:none;"
+        "background-color: transparent;"
+        "image: url(:/new/prefix1/Imagenes/Atacar_Normal.png);"
+        "}"
+
+        "QPushButton:hover {"
+        "image: url(:/new/prefix1/Imagenes/Atacar_Hover.png);"
+        "}"
+
+        "QPushButton:disabled {"
+        "image: url(:/new/prefix1/Imagenes/Atacar_Pressed.png);"
+        "}");
     proxyBtnAtacar = escena->addWidget(btnAtacarCircular);
-    proxyBtnAtacar->setPos(anchoEscena / 2.0 + CartaGraphicsItem::ANCHO + 80,
-                           alturaEscena / 2.0 - CartaGraphicsItem::ALTO / 2.0 + 50);
-    proxyBtnAtacar->setVisible(false);
+    proxyBtnAtacar->setPos(anchoEscena / 2.0 + CartaGraphicsItem::ANCHO + 60,alturaEscena / 2.0 - CartaGraphicsItem::ALTO / 2.0 + 35);
+    proxyBtnAtacar->setVisible(true);
 
     //Permite interactuar con el boton.
     connect(btnAtacarCircular, &QPushButton::clicked, this, &MainWindow::onBtnAtacarClicked);
@@ -109,46 +316,112 @@ void MainWindow::crearOverlayResultado()
     overlayResultado->hide();
 
     auto* panel = new QWidget(overlayResultado);
+    lblFondoResultado =
+        new QLabel(panel);
+    lblFondoResultado->setStyleSheet(
+        "background: transparent;");
+    lblFondoResultado->setAlignment(
+        Qt::AlignCenter);
     panel->setObjectName("panelResultado");
-    panel->setFixedSize(420, 320);
-
-    lblImagenResultado = new QLabel(panel);
-    lblImagenResultado->setAlignment(Qt::AlignCenter);
-    lblImagenResultado->setFixedSize(110, 110);
-
+    panel->setFixedSize(900, 600);
     panel->setStyleSheet(
         "QWidget#panelResultado {"
-        "  background-color: #1c1f2e;"
-        "  border: 3px solid #f1c40f;"
-        "  border-radius: 16px;"
+        "background-color: transparent;"
+        "border: none;"
         "}");
 
-    lblResultadoTitulo = new QLabel(panel);
-    lblResultadoTitulo->setAlignment(Qt::AlignCenter);
-    lblResultadoTitulo->setFont(QFont("Arial", 34, QFont::Black));
-
+    lblTituloResultado = new QLabel(panel);
+    lblTituloResultado->setStyleSheet(
+        "background: transparent;");
+    lblTituloResultado->setAlignment(Qt::AlignCenter);
     lblResultadoSubtitulo = new QLabel(panel);
     lblResultadoSubtitulo->setAlignment(Qt::AlignCenter);
     lblResultadoSubtitulo->setFont(QFont("Arial", 14));
-    lblResultadoSubtitulo->setStyleSheet("color: white;");
+    lblResultadoSubtitulo->setStyleSheet(
+        "background: transparent;"
+        "color: white;"
+        "font-size: 22px;"
+        "font-weight: bold;");
 
-    //Boton para cerrar mensaje.
-    auto* btnCerrar = new QPushButton("Cerrar", panel);
-    btnCerrar->setFixedSize(110, 34);
-    btnCerrar->setStyleSheet(
-        "QPushButton { background-color: #f1c40f; color: #1c1f2e; border-radius: 6px; font-weight: bold; }"
-        "QPushButton:hover { background-color: #f7dc6f; }");
-    connect(btnCerrar, &QPushButton::clicked, overlayResultado, &QWidget::hide);
+    btnResultadoPrincipal =
+        new QPushButton(panel);
 
+    btnResultadoSecundario =
+        new QPushButton(panel);
+
+    btnResultadoPrincipal->setFixedSize(
+        350,
+        160);
+
+    btnResultadoSecundario->setFixedSize(
+        350,
+        160);
+
+    connect(
+        btnResultadoPrincipal,
+        &QPushButton::clicked,
+        this,
+        &MainWindow::onResultadoPrincipal);
+
+    connect(
+        btnResultadoSecundario,
+        &QPushButton::clicked,
+        this,
+        &MainWindow::onResultadoSecundario);
+
+    /*
     //Organiza capas del mensaje final.
     auto* layout = new QVBoxLayout(panel);
+    layout->addWidget(
+        lblFondoResultado);
     layout->addStretch();
-    layout->addWidget(lblResultadoTitulo);
-    layout->addWidget(lblResultadoSubtitulo);
-    layout->addWidget(lblImagenResultado, 0, Qt::AlignCenter);
     layout->addSpacing(12);
-    layout->addWidget(btnCerrar, 0, Qt::AlignCenter);
+    ///layout->addWidget(lblTituloResultado);
+    ///layout->addWidget(lblResultadoSubtitulo);
+
+    auto* layoutBotones = new QHBoxLayout();
+    layoutBotones->addWidget(btnResultadoPrincipal);
+    layoutBotones->addWidget(btnResultadoSecundario);
+    layout->addLayout(layoutBotones);
+    btnResultadoPrincipal->setStyleSheet("QPushButton {"" background-color: #f1c40f;"" color: #1c1f2e;"" border-radius: 6px;"
+        " font-weight: bold;""}""QPushButton:hover {"" background-color: #f7dc6f;""}");
+
+    btnResultadoSecundario->setStyleSheet(btnResultadoPrincipal->styleSheet());
+
     layout->addStretch();
+
+    */
+
+    lblFondoResultado->setGeometry(
+        0,
+        0,
+        900,
+        600);
+
+    lblTituloResultado->setGeometry(
+        50,
+        0,
+        800,
+        350);
+
+    lblResultadoSubtitulo->setGeometry(
+        200,
+        310,
+        500,
+        140);
+
+    btnResultadoPrincipal->setGeometry(
+        100,
+        460,
+        150,
+        40);
+
+    btnResultadoSecundario->setGeometry(
+        450,
+        460,
+        150,
+        40);
+
 
     auto* layoutOverlay = new QVBoxLayout(overlayResultado);
     layoutOverlay->addWidget(panel, 0, Qt::AlignCenter);
@@ -207,7 +480,7 @@ void MainWindow::onCartaJugadorClickeada(CartaGraphicsItem* carta)
     if (indice == -1) return;
 
     juego->seleccionarElemento(indice);
-    ui->textEdit->append(QString("<span style='color:#3498db;'>➤ Elegiste: <b>%1</b></span>").arg(jugador1->getElementos()[indice].obtenerNombre()));
+    ui->textEdit->append(QString("<span style='color:#4db8ff;'>➤ Elegiste: <b>%1</b></span>").arg(jugador1->getElementos()[indice].obtenerNombre()));
 
     actualizarPantalla();
 }
@@ -218,6 +491,8 @@ void MainWindow::onBtnAtacarClicked()
 
     if (juego->termino()) return;
 
+    btnAtacarCircular->setEnabled(false);
+
     Elemento* elemJugador = juego->getElementoActivoJugador();
     Elemento* elemIA = juego->getElementoActivoIA();
     int vidaJugadorAntes = elemJugador ? elemJugador->obtenerVida() : 0;
@@ -226,10 +501,34 @@ void MainWindow::onBtnAtacarClicked()
     juego->resolverTurno();
 
     ui->textEdit->append("<hr>");
-    QStringList lineas = juego->getMensajeEstado().split("\n");
-    for (const QString& linea : std::as_const(lineas)) {
-        if (!linea.trimmed().isEmpty())
-            ui->textEdit->append("<span style='color:#2c3e50;'>⚔ " + linea.toHtmlEscaped() + "</span>");
+
+    const ResultadoRonda& resultado =
+        juego->getUltimoResultado();
+
+    for (const ResultadoAtaque& ataque :
+         resultado.getAtaques())
+    {
+        QString texto;
+
+        texto += QString::fromStdString(
+            ataque.atacante);
+
+        texto += " ataco a ";
+
+        texto += QString::fromStdString(
+            ataque.defensor);
+
+        texto += " (";
+
+        texto += QString::number(
+            ataque.danio);
+
+        texto += " daño)";
+
+        ui->textEdit->append(
+            "<span style='color:#ffd780;'>⚔ "
+            + texto +
+            "</span>");
     }
 
     if (elemJugador) {
@@ -243,13 +542,17 @@ void MainWindow::onBtnAtacarClicked()
             mostrarDanioFlotante(danio, cartaActivaIA->pos() + QPointF(CartaGraphicsItem::ANCHO / 2 - 15, 10));
     }
 
-    actualizarPantalla();
+    QTimer::singleShot(
+        700,
+        this,
+        [this]()
+        {
+            actualizarPantalla();
+        });
 
     if (juego->iaNecesitaCambiarYAtacar()) {
         // La carta de la IA murió: le damos una pausa visual antes de que elija una nueva y ataque, para que se note con claridad que es OTRA carta la que está golpeando (y no la que acaba de morir).
         QTimer::singleShot(700, this, &MainWindow::resolverCambioDeCartaIA);
-    } else {
-        btnAtacarCircular->setEnabled(!juego->termino());
     }
 }
 
@@ -264,10 +567,11 @@ void MainWindow::resolverCambioDeCartaIA()
 
     juego->resolverCambioIA();
 
-    QStringList lineas = juego->getMensajeEstado().split("\n");
+    QStringList lineas = QString::fromStdString(juego->getMensajeEstado()).split("\n");
+
     for (const QString& linea : std::as_const(lineas)) {
         if (!linea.trimmed().isEmpty())
-            ui->textEdit->append("<span style='color:#e67e22;'>🔄 " + linea.toHtmlEscaped() + "</span>");
+            ui->textEdit->append("<span style='color:#ffae42;'>🔄 " + linea.toHtmlEscaped() + "</span>");
     }
 
     // Si la carta del jugador murió con este golpe, le pedimos a actualizarPantalla() que todavía NO la saque del centro: primero queremos que se vea el número de daño sobre ella, y recién después dejarla retirarse.
@@ -285,7 +589,6 @@ void MainWindow::resolverCambioDeCartaIA()
         QTimer::singleShot(600, this, [this]() {
             retrasarSalidaCartaJugador = false;
             actualizarPantalla();
-            btnAtacarCircular->setEnabled(!juego->termino());
         });
     });
 }
@@ -372,9 +675,13 @@ void MainWindow::actualizarPantalla()
 
     //Activa boton de atacar cuando ambos jugadores seleccionan sus cartas. Lo desactiva durante combates y cuando la partida finaliza.
 
-    bool mostrarBoton = !juego->termino() && juego->hayElementosSeleccionados()
-                        && !juego->jugadorDebeCambiar();
-    proxyBtnAtacar->setVisible(mostrarBoton);
+    bool mostrarBoton =
+        !juego->termino() &&
+        juego->hayElementosSeleccionados() &&
+        !juego->jugadorDebeCambiar();
+
+    btnAtacarCircular->setEnabled(
+        mostrarBoton);
 
     if (juego->termino()) {
         mostrarFinDePartida();
@@ -394,19 +701,152 @@ void MainWindow::mostrarFinDePartida()
 
     bool gano = juego->ganoJugador();
 
+    int cartasVivasJugador = 0;
+    int vidaJugador = 0;
+
+    for(const Elemento& e :
+         juego->getJugador1()->getElementos())
+    {
+        if(e.estaVivo())
+        {
+            cartasVivasJugador++;
+            vidaJugador += e.obtenerVida();
+        }
+    }
+
+    int cartasVivasIA = 0;
+    int vidaIA = 0;
+
+    for(const Elemento& e :
+         juego->getJugador2()->getElementos())
+    {
+        if(e.estaVivo())
+        {
+            cartasVivasIA++;
+            vidaIA += e.obtenerVida();
+        }
+    }
+
     if (gano) {
-        ui->textEdit->append("<b style='color:#2ecc71; font-size:16px;'>¡GANASTE LA PARTIDA!</b>");
-        lblResultadoTitulo->setText("VICTORIA");
-        lblResultadoTitulo->setStyleSheet("color: #2ecc71;");
-        lblResultadoSubtitulo->setText("Ganaste la partida");
+        QPixmap fondo(
+            ":/new/prefix1/Imagenes/Pantalla final/PantallaVictoria.png");
+
+        lblFondoResultado->setPixmap(
+            fondo.scaled(
+                900,
+                600,
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation));
+
+        QPixmap titulo(
+            ":/new/prefix1/Imagenes/Pantalla final/TituloVictoria.png");
+
+        lblTituloResultado->setPixmap(
+            titulo.scaled(
+                800,
+                350,
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation));
+
+        lblResultadoSubtitulo->setText(
+            QString(
+                "IA derrotada: %1\n\n"
+                "Cartas supervivientes: %2\n"
+                "Vida restante: %3")
+                .arg(
+                    QString::fromStdString(
+                        configuracion->getTipoIA()))
+                .arg(cartasVivasJugador)
+                .arg(vidaJugador));
+
+        btnResultadoPrincipal->setStyleSheet(
+            "QPushButton {"
+            "border:none;"
+            "background:transparent;"
+            "image:url(:/new/prefix1/Imagenes/Pantalla final/NuevaPartida_Normal.png);"
+            "}"
+            "QPushButton:hover {"
+            "image:url(:/new/prefix1/Imagenes/Pantalla final/NuevaPartida_Hover.png);"
+            "}");
+
+        btnResultadoPrincipal->setText(
+            "");
+
+        btnResultadoSecundario->setStyleSheet(
+            "QPushButton {"
+            "border:none;"
+            "background:transparent;"
+            "image:url(:/new/prefix1/Imagenes/Pantalla final/VolverMenu_NormalVictoria.png);"
+            "}"
+            "QPushButton:hover {"
+            "image:url(:/new/prefix1/Imagenes/Pantalla final/VolverMenu_HoverVictoria.png);"
+            "}");
+
+        btnResultadoSecundario->setText(
+            "");
     } else {
-        ui->textEdit->append("<b style='color:#e74c3c; font-size:16px;'>LA IA HA GANADO LA PARTIDA</b>");
-        lblResultadoTitulo->setText("DERROTA");
-        lblResultadoTitulo->setStyleSheet("color: #e74c3c;");
-        lblResultadoSubtitulo->setText("La IA ganó la partida");
+        QPixmap fondo(
+            ":/new/prefix1/Imagenes/Pantalla final/PantallaDerrota.png");
+
+        lblFondoResultado->setPixmap(
+            fondo.scaled(
+                900,
+                600,
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation));
+
+
+        QPixmap titulo(
+            ":/new/prefix1/Imagenes/Pantalla final/TituloDerrota.png");
+
+        lblTituloResultado->setPixmap(
+            titulo.scaled(
+                800,
+                350,
+                Qt::KeepAspectRatio,
+                Qt::SmoothTransformation));
+
+        lblResultadoSubtitulo->setText(
+            QString(
+                "La IA %1 ha ganado.\n\n"
+                "Cartas supervivientes IA: %2\n"
+                "Vida restante IA: %3")
+                .arg(
+                    QString::fromStdString(
+                        configuracion->getTipoIA()))
+                .arg(cartasVivasIA)
+                .arg(vidaIA));
+
+        btnResultadoPrincipal->setStyleSheet(
+            "QPushButton {"
+            "border:none;"
+            "background:transparent;"
+            "image:url(:/new/prefix1/Imagenes/Pantalla final/Reintentar_Normal.png);"
+            "}"
+            "QPushButton:hover {"
+            "image:url(:/new/prefix1/Imagenes/Pantalla final/Reintentar_Hover.png);"
+            "}");
+
+        btnResultadoPrincipal->setText(
+            "");
+
+        btnResultadoSecundario->setStyleSheet(
+            "QPushButton {"
+            "border:none;"
+            "background:transparent;"
+            "image:url(:/new/prefix1/Imagenes/Pantalla final/VolverMenu_NormalDerrota.png);"
+            "}"
+            "QPushButton:hover {"
+            "image:url(:/new/prefix1/Imagenes/Pantalla final/VolverMenu_HoverDerrota.png);"
+            "}");
+
+        btnResultadoSecundario->setText(
+            "");
+        /*
         lblImagenResultado->setPixmap(
             QPixmap(":/new/prefix1/Imagenes/Derrota.png")
                 .scaled(110, 110, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        */
     }
 
     overlayResultado->setGeometry(ui->centralwidget->rect());
@@ -466,4 +906,164 @@ void MainWindow::mostrarDanioFlotante(int danio, QPointF posicion)
     grupo->addAnimation(animOpacidad);
     connect(grupo, &QParallelAnimationGroup::finished, texto, &QGraphicsTextItem::deleteLater);
     grupo->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void MainWindow::on_btnGuardarPartida_clicked()
+{
+    bool ok;
+
+    int slot =
+        QInputDialog::getInt(
+            this,
+            "Guardar partida",
+            "Seleccione un slot (1-5):",
+            1,
+            1,
+            5,
+            1,
+            &ok);
+
+    if(!ok)
+    {
+        return;
+    }
+
+    GestorPartidas gestor;
+
+    if(gestor.existeSlot(slot))
+    {
+        QMessageBox mensaje(this);
+
+        mensaje.setWindowTitle(
+            "Sobrescribir partida");
+
+        mensaje.setText(
+            QString(
+                "El Slot %1 ya contiene una partida.\n\n¿Desea sobrescribirla?")
+                .arg(slot));
+
+        mensaje.setStandardButtons(
+            QMessageBox::Yes |
+            QMessageBox::No);
+
+        mensaje.setStyleSheet(
+            "QMessageBox {"
+            "background-color: rgb(12,18,30);"
+            "}"
+            "QLabel {"
+            "color: rgb(235,220,170);"
+            "font-size: 14px;"
+            "font-weight: bold;"
+            "}"
+            "QPushButton {"
+            "background-color: rgb(25,40,70);"
+            "color: rgb(235,220,170);"
+            "border: 1px solid rgb(180,140,60);"
+            "padding: 6px;"
+            "min-width: 80px;"
+            "}");
+
+        if(mensaje.exec() == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
+    gestor.guardarPartida(
+        slot,
+        juego);
+
+    ui->textEdit->append(
+        QString(
+            "<b>💾 Partida guardada en Slot %1</b>")
+            .arg(slot));
+}
+
+void MainWindow::on_btnVolverMenu_clicked()
+{
+    QMessageBox mensaje(this);
+
+    mensaje.setWindowTitle(
+        "Volver al menú");
+
+    mensaje.setText(
+        "Si sales sin guardar, el progreso se perderá.\n\n¿Deseas continuar?");
+
+    mensaje.setStandardButtons(
+        QMessageBox::Yes |
+        QMessageBox::No);
+
+    mensaje.setStyleSheet(
+        "QMessageBox {"
+        "background-color: rgb(12,18,30);"
+        "}"
+        "QLabel {"
+        "color: rgb(235,220,170);"
+        "font-size: 14px;"
+        "font-weight: bold;"
+        "}"
+        "QPushButton {"
+        "background-color: rgb(25,40,70);"
+        "color: rgb(235,220,170);"
+        "border: 1px solid rgb(180,140,60);"
+        "padding: 6px;"
+        "min-width: 80px;"
+        "}");
+
+    if(mensaje.exec() == QMessageBox::No)
+    {
+        return;
+    }
+
+    MenuPrincipal* menu =
+        new MenuPrincipal();
+
+    menu->show();
+
+    close();
+}
+
+void MainWindow::onResultadoSecundario()
+{
+    MenuPrincipal* menu =
+        new MenuPrincipal();
+
+    menu->show();
+
+    close();
+}
+
+void MainWindow::onResultadoPrincipal()
+{
+    MainWindow* nueva = nullptr;
+
+    if(juego->ganoJugador())
+    {
+        nueva =
+            new MainWindow(
+                QString::fromStdString(
+                    jugador1->getNombre()),
+                QString::fromStdString(
+                    configuracion->getTipoIA()));
+
+        GestorPartidas gestor;
+
+        gestor.guardarEstadoTemporal(
+            nueva->crearEstadoParaReintento());
+    }
+    else
+    {
+        GestorPartidas gestor;
+
+        EstadoPartida estado =
+            gestor.cargarEstadoTemporal();
+
+        nueva =
+            new MainWindow(
+                estado);
+    }
+
+    nueva->show();
+
+    close();
 }

@@ -11,7 +11,7 @@ CartaGraphicsItem::CartaGraphicsItem(const Elemento& elemento, QGraphicsItem* pa
     : QGraphicsObject(parent)
 {
     //Guardamos datos de las cartas.
-    nombre = elemento.obtenerNombre();
+    nombre = QString::fromStdString(elemento.obtenerNombre());
     vida = elemento.obtenerVida();
     tipoAtaque = elemento.obtenerAtaque();
     tipoDefensa = elemento.obtenerDefensa();

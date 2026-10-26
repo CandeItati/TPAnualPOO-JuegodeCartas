@@ -1,0 +1,36 @@
+# Configuracion General
+
+cantidad_cartas=5
+tipo_ia=ALEATORIA
+
+# Tabla de daños
+
+agua_agua=25
+agua_fuego=50
+agua_tierra=20
+agua_rayo=15
+agua_hielo=30
+
+fuego_agua=15
+fuego_fuego=25
+fuego_tierra=50
+fuego_rayo=30
+fuego_hielo=60
+
+tierra_agua=50
+tierra_fuego=20
+tierra_tierra=25
+tierra_rayo=60
+tierra_hielo=15
+
+rayo_agua=60
+rayo_fuego=30
+rayo_tierra=15
+rayo_rayo=25
+rayo_hielo=30
+
+hielo_agua=30
+hielo_fuego=15
+hielo_tierra=50
+hielo_rayo=30
+hielo_hielo=25

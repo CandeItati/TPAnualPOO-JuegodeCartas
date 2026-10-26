@@ -1,34 +1,37 @@
-#ifndef ELEMENTO_H // Si ELEMENTO_H todavía no fue definido...
-#define ELEMENTO_H // ...lo definimos para evitar incluir este archivo dos veces.
+#ifndef ELEMENTO_H
+#define ELEMENTO_H
 
-#include <QString> // Permite usar la clase QString de Qt.
-#include "enums.h" // Incluye el enum TipoElemento.
+#include <string>
+#include "enums.h"
 
-class Elemento // Declaración de la clase Elemento.
+class Elemento
 {
-public:         // Todo lo que esté aquí podrá usarse desde otras clases.
-    Elemento(); // Constructor por defecto.
+public:
+    Elemento();
 
-    // Constructor que recibe el nombre, el tipo de ataque y el tipo de defensa.
-    Elemento(QString nombre, TipoElemento Ataque, TipoElemento Defensa);
+    Elemento(std::string nombre,TipoElemento ataque,TipoElemento defensa);
 
-    /// Metodos:
+    std::string obtenerNombre() const;
 
-    QString obtenerNombre() const;       // Devuelve el nombre.
-    TipoElemento obtenerAtaque() const;  // Devuelve el tipo de ataque.
-    TipoElemento obtenerDefensa() const; // Devuelve el tipo de defensa.
-    int obtenerVida() const;             // Devuelve la vida actual del elemento.
-    void recibirDanio(int danio);        // Resta vida según el daño recibido.
-    bool estaVivo() const;               // Devuelve true si la vida es mayor que 0.
-    bool esMixto() const;                // Devuelve true si ataque y defensa son distintos.
+    TipoElemento obtenerAtaque() const;
+    TipoElemento obtenerDefensa() const;
 
-private: // Solo la propia clase puede acceder a estos atributos.
-    /// Atributos
+    int obtenerVida() const;
 
-    QString nombre;           // Nombre del elemento.
-    int vida;                 // Vida actual.
-    TipoElemento tipoAtaque;  // Tipo elemental con el que ataca.
-    TipoElemento tipoDefensa; // Tipo elemental con el que se defiende.
+    void recibirDanio(int danio);
+
+    bool estaVivo() const;
+    bool esMixto() const;
+
+    void setVida(int nuevaVida);
+
+private:
+    std::string nombre;
+
+    int vida;
+
+    TipoElemento tipoAtaque;
+    TipoElemento tipoDefensa;
 };
 
-#endif // ELEMENTO_H
+#endif

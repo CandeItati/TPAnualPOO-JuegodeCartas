@@ -3,39 +3,53 @@
 // ==============================
 // Constructor
 // ==============================
+
 SistemaCombate::SistemaCombate()
 {
-    // Matriz auxiliar con los daños ya definidos.
-    // Cada fila representa un tipo de ataque.
-    // Cada columna representa un tipo de defensa.
-    int datos[5][5] = {{25, 15, 50, 30, 60},
-                       {50, 25, 20, 15, 30},
-                       {30, 50, 25, 60, 15},
-                       {30, 60, 15, 25, 30},
-                       {15, 30, 50, 30, 25}};
+    configuracion = nullptr;
 
-    // Recorre todas las filas de la matriz.
-    for (int i = 0; i < 5; i++) {
-        // Recorre todas las columnas.
-        for (int j = 0; j < 5; j++) {
-            // Copia cada valor de la matriz auxiliar
-            // hacia la matriz de la clase.
+    int datos[5][5] = {
+        {25, 15, 50, 30, 60},
+        {50, 25, 20, 15, 30},
+        {30, 50, 25, 60, 15},
+        {30, 60, 15, 25, 30},
+        {15, 30, 50, 30, 25}
+    };
+
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
             matrizDanios[i][j] = datos[i][j];
         }
     }
 }
 
+SistemaCombate::SistemaCombate(Configuracion* config)
+{
+    configuracion = config;
+}
+
+
+
 // =========================================
 // Calcula el daño entre dos elementos.
 // =========================================
-int SistemaCombate::calcularDanio(const Elemento &atacante, const Elemento &defensor)
+int SistemaCombate::calcularDanio(const Elemento& atacante,
+                                  const Elemento& defensor)
 {
-    // Obtiene el tipo de ataque del atacante.
-    // Obtiene el tipo de defensa del defensor.
-    // Esos valores se utilizan como índices de la matriz.
-    // Devuelve el daño correspondiente.
+    if (configuracion != nullptr)
+    {
+        return configuracion->getDanio(
+            atacante.obtenerAtaque(),
+            defensor.obtenerDefensa());
+    }
 
-    return matrizDanios[atacante.obtenerAtaque()][defensor.obtenerDefensa()];
+    return matrizDanios[
+        atacante.obtenerAtaque()
+    ][
+        defensor.obtenerDefensa()
+    ];
 }
 
 // =========================================

@@ -1,20 +1,20 @@
 #include "juego.h"
 #include "jugadorhumano.h" // Necesario para usar dynamic_cast.
+#include "contrincanteia.h"
 
 // ==========================
 // Constructor
 // ==========================
-Juego::Juego(Jugador *jugador1, Jugador *jugador2)
+Juego::Juego(Jugador *jugador1,Jugador *jugador2,Configuracion* config): sistema(config)
 {
-    // Guarda los jugadores recibidos.
     this->jugador1 = jugador1;
     this->jugador2 = jugador2;
+    this->configuracion = config;
 
-    // Reparte 5 elementos a cada jugador.
-    jugador1->repartirElementos();
-    jugador2->repartirElementos();
+    jugador1->repartirElementos(configuracion->getCantidadCartas());
 
-    // Al comenzar todavía no hay elementos seleccionados.
+    jugador2->repartirElementos(configuracion->getCantidadCartas());
+
     elementoActivoJugador = nullptr;
     elementoActivoIA = nullptr;
 }
@@ -36,9 +36,23 @@ void Juego::seleccionarElemento(int indice)
         elementoActivoJugador = &humano->seleccionarElemento();
     }
 
-    // Condicional para evitar que la IA cambie de carta, si el jugador tambien cambia.
-    if (elementoActivoIA == nullptr) {
-        elementoActivoIA = &jugador2->seleccionarElemento();
+    ContrincanteIA* ia =
+        dynamic_cast<ContrincanteIA*>(
+            jugador2);
+
+    if(elementoActivoIA == nullptr)
+    {
+        elementoActivoIA =
+            &jugador2->seleccionarContra(
+                *elementoActivoJugador);
+    }
+    else if(
+        ia &&
+        ia->recalcularAnteCambio())
+    {
+        elementoActivoIA =
+            &jugador2->seleccionarContra(
+                *elementoActivoJugador);
     }
 }
 
@@ -71,24 +85,77 @@ bool Juego::hayElementosSeleccionados()
 // ==========================
 void Juego::resolverTurno()
 {
-    // Si todavía no eligieron cartas, no hace nada.
     if (!hayElementosSeleccionados()) {
         return;
     }
 
     mensajeEstado.clear();
+    ultimoResultado.limpiar();
 
-    // El jugador ataca primero.
     if (elementoActivoJugador->estaVivo()) {
-        sistema.aplicarDanio(*elementoActivoJugador, *elementoActivoIA);
-        mensajeEstado += elementoActivoJugador->obtenerNombre() + " ataco a " + elementoActivoIA->obtenerNombre();
+
+        sistema.aplicarDanio(*elementoActivoJugador,*elementoActivoIA);
+
+        ResultadoAtaque ataque;
+
+        ataque.atacaJugador = true;
+
+        ataque.atacante =
+            elementoActivoJugador->obtenerNombre();
+
+        ataque.defensor =
+            elementoActivoIA->obtenerNombre();
+
+        ataque.danio =
+            sistema.calcularDanio(
+                *elementoActivoJugador,
+                *elementoActivoIA);
+
+        ataque.defensorEliminado =
+            !elementoActivoIA->estaVivo();
+
+        ultimoResultado.agregarAtaque(
+            ataque);
+
+        mensajeEstado += elementoActivoJugador->obtenerNombre();
+
+        mensajeEstado += " ataco a ";
+
+        mensajeEstado += elementoActivoIA->obtenerNombre();
     }
 
-    // Si la IA sigue viva, contraataca.
     if (elementoActivoIA->estaVivo()) {
-        sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
+
+        sistema.aplicarDanio(*elementoActivoIA,*elementoActivoJugador);
+
+        ResultadoAtaque ataque;
+
+        ataque.atacaJugador = false;
+
+        ataque.atacante =
+            elementoActivoIA->obtenerNombre();
+
+        ataque.defensor =
+            elementoActivoJugador->obtenerNombre();
+
+        ataque.danio =
+            sistema.calcularDanio(
+                *elementoActivoIA,
+                *elementoActivoJugador);
+
+        ataque.defensorEliminado =
+            !elementoActivoJugador->estaVivo();
+
+        ultimoResultado.agregarAtaque(
+            ataque);
+
         mensajeEstado += "\n";
-        mensajeEstado += elementoActivoIA->obtenerNombre() + " ataco a " + elementoActivoJugador->obtenerNombre();
+
+        mensajeEstado += elementoActivoIA->obtenerNombre();
+
+        mensajeEstado += " ataco a ";
+
+        mensajeEstado += elementoActivoJugador->obtenerNombre();
     }
 }
 
@@ -108,14 +175,37 @@ void Juego::resolverCambioIA()
     mensajeEstado.clear();
 
     elementoActivoIA = nullptr;
+
     if (jugador2->tieneElementosVivos()) {
-        elementoActivoIA = &jugador2->seleccionarElemento();
+
+        elementoActivoIA =
+            &jugador2->seleccionarContra(
+                *elementoActivoJugador);
+
         mensajeEstado = "La IA elige una nueva carta: " + elementoActivoIA->obtenerNombre();
 
-        if (elementoActivoJugador && elementoActivoJugador->estaVivo()) {
-            sistema.aplicarDanio(*elementoActivoIA, *elementoActivoJugador);
+        if (elementoActivoJugador && elementoActivoJugador->estaVivo())
+        {
+
+            int danio =
+                sistema.calcularDanio(
+                    *elementoActivoIA,
+                    *elementoActivoJugador);
+
+            sistema.aplicarDanio(*elementoActivoIA,*elementoActivoJugador);
+
             mensajeEstado += "\n";
-            mensajeEstado += elementoActivoIA->obtenerNombre() + " ataco a " + elementoActivoJugador->obtenerNombre();
+
+            mensajeEstado += elementoActivoIA->obtenerNombre();
+
+            mensajeEstado += " ataco a ";
+
+            mensajeEstado += elementoActivoJugador->obtenerNombre();
+
+            mensajeEstado +=
+                " (" +
+                std::to_string(danio) +
+                " daño)";
         }
     }
 }
@@ -125,7 +215,7 @@ void Juego::resolverCambioIA()
 // ==========================
 // Devuelve el mensaje.
 // ==========================
-QString Juego::getMensajeEstado() const
+std::string Juego::getMensajeEstado() const
 {
     return mensajeEstado;
 }
@@ -179,4 +269,123 @@ bool Juego::termino() const
 bool Juego::ganoJugador() const
 {
     return jugador2->tieneElementosVivos() == false && jugador1->tieneElementosVivos() == true;
+}
+
+Jugador* Juego::getJugador1() const
+{
+    return jugador1;
+}
+
+Jugador* Juego::getJugador2() const
+{
+    return jugador2;
+}
+
+Configuracion* Juego::getConfiguracion() const
+{
+    return configuracion;
+}
+
+const ResultadoRonda&
+Juego::getUltimoResultado() const
+{
+    return ultimoResultado;
+}
+
+EstadoPartida Juego::crearEstadoPartida() const
+{
+    EstadoPartida estado;
+
+    estado.setNombreJugador(
+        jugador1->getNombre());
+
+    estado.setTipoIA(
+        configuracion->getTipoIA());
+
+    estado.setCantidadCartas(
+        configuracion->getCantidadCartas());
+
+    for(const Elemento& e :
+         jugador1->getElementos())
+    {
+        DatosCarta carta;
+
+        carta.nombre =
+            e.obtenerNombre();
+
+        carta.vida =
+            e.obtenerVida();
+
+        estado.agregarCartaJugador(
+            carta);
+    }
+
+    for(const Elemento& e :
+         jugador2->getElementos())
+    {
+        DatosCarta carta;
+
+        carta.nombre =
+            e.obtenerNombre();
+
+        carta.vida =
+            e.obtenerVida();
+
+        estado.agregarCartaIA(
+            carta);
+    }
+
+    return estado;
+}
+
+void Juego::cargarDesdeEstado(
+    const EstadoPartida& estado)
+{
+    jugador1->setNombre(
+        estado.getNombreJugador());
+
+    jugador1->cargarDesdeEstado(
+        estado.getCartasJugador());
+
+    jugador2->cargarDesdeEstado(
+        estado.getCartasIA());
+
+    elementoActivoJugador = nullptr;
+    elementoActivoIA = nullptr;
+
+    const auto& cartasJugador =
+        jugador1->getElementos();
+
+    for(size_t i = 0;
+         i < cartasJugador.size();
+         i++)
+    {
+        if(cartasJugador[i]
+                .obtenerNombre() ==
+            estado.getCartaActivaJugador())
+        {
+            elementoActivoJugador =
+                const_cast<Elemento*>(
+                    &cartasJugador[i]);
+            break;
+        }
+    }
+
+    const auto& cartasIA =
+        jugador2->getElementos();
+
+    for(size_t i = 0;
+         i < cartasIA.size();
+         i++)
+    {
+        if(cartasIA[i]
+                .obtenerNombre() ==
+            estado.getCartaActivaIA())
+        {
+            elementoActivoIA =
+                const_cast<Elemento*>(
+                    &cartasIA[i]);
+            break;
+        }
+    }
 }

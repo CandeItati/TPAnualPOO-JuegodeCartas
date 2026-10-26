@@ -2,11 +2,13 @@
 #define SISTEMACOMBATE_H
 
 #include "elemento.h" // Se necesita la clase Elemento porque los métodos trabajan con ella.
+#include "configuracion.h"
 
 class SistemaCombate
 {
 public:               // Métodos accesibles desde otras clases.
-    SistemaCombate(); // Constructor. Inicializa la matriz de daños.
+    SistemaCombate();
+    SistemaCombate(Configuracion* config);
 
     // Calcula cuánto daño le hace un elemento atacante a un defensor.
     // Se reciben por referencia constante (&) para no copiarlos y para asegurar que no serán modificados.
@@ -18,7 +20,9 @@ public:               // Métodos accesibles desde otras clases.
     void aplicarDanio(Elemento &atacante, Elemento &defensor);
 
 private: // Solo la propia clase puede acceder a estos datos.
-    // Matriz que almacena cuánto daño hace cada tipo de ataque contra cada tipo de defensa.
+
+    Configuracion* configuracion = nullptr;
+
     int matrizDanios[5][5];
 };
 

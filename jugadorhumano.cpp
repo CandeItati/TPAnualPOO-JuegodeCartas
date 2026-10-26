@@ -23,11 +23,8 @@ Elemento &JugadorHumano::seleccionarElemento()
 // ==========================
 Elemento &JugadorHumano::seleccionarContra(const Elemento &enemigo)
 {
-    // Esta macro de Qt indica que el parámetro no será utilizado.
-    // Evita que el compilador muestre una advertencia.
-    Q_UNUSED(enemigo);
+    (void)enemigo;
 
-    // El jugador humano simplemente usa el elemento que el usuario haya seleccionado previamente.
     return seleccionarElemento();
 }
 

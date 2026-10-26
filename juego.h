@@ -1,19 +1,23 @@
 #ifndef JUEGO_H // Evita que el archivo se incluya dos veces.
 #define JUEGO_H
 
-#include <QString> // Permite utilizar QString.
+#include <string>
 
 #include "catalogoelementos.h" // Incluye el catálogo de elementos.
 #include "jugador.h"           // Incluye la clase Jugador.
 #include "sistemacombate.h"    // Incluye la lógica del combate.
+#include "configuracion.h"
+#include "resultadoronda.h"
+#include "estadopartida.h"
+
+
 
 // La clase Juego controla toda la partida.
 class Juego
 {
 public:
     // Constructor.
-    // Recibe dos jugadores (humano e IA).
-    Juego(Jugador *jugador1, Jugador *jugador2);
+    Juego(Jugador *jugador1,Jugador *jugador2,Configuracion* config);
 
     // Permite al jugador humano seleccionar un elemento.
     void seleccionarElemento(int indice);
@@ -52,15 +56,31 @@ public:
     bool ganoJugador() const;
 
     // Devuelve el mensaje que mostrará la interfaz.
-    QString getMensajeEstado() const;
+    std::string getMensajeEstado() const;
+
+    Jugador* getJugador1() const;
+    Jugador* getJugador2() const;
+    Configuracion* getConfiguracion() const;
+
+    const ResultadoRonda& getUltimoResultado() const;
+
+    EstadoPartida crearEstadoPartida() const;
+
+    void cargarDesdeEstado(
+        const EstadoPartida& estado);
+
 
 private:
     // Punteros a los jugadores.
     Jugador *jugador1;
     Jugador *jugador2;
 
+    Configuracion* configuracion;
+
     // Mensaje que se muestra en pantalla.
-    QString mensajeEstado;
+    std::string mensajeEstado;
+
+    ResultadoRonda ultimoResultado;
 
     // Elemento actualmente seleccionado por el jugador.
     Elemento *elementoActivoJugador;

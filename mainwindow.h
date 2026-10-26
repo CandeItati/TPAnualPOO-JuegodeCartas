@@ -10,6 +10,7 @@
 
 #include "juego.h"
 #include "cartagraphicsitem.h"
+#include "configuracion.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,7 +24,18 @@ class MainWindow : public QMainWindow
 
 public:
     // Constructor. Prepara la ventana, inicializa la lógica del juego y configura la interfaz inicial.
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(
+        const QString& nombreJugador,
+        const QString& tipoIA,
+        QWidget *parent = nullptr);
+
+    explicit MainWindow(
+        const EstadoPartida& estado,
+        QWidget *parent = nullptr);
+
+    EstadoPartida
+    crearEstadoParaReintento() const;
+
     // Destructor. Libera la memoria de los punteros y objetos creados para evitar fugas de memoria.
     ~MainWindow() override;
 
@@ -37,6 +49,13 @@ private slots:
     // Se ejecuta para procesar lógicamente y animar el momento en que la Inteligencia Artificial cambia su carta.
     void resolverCambioDeCartaIA();
 
+    void on_btnGuardarPartida_clicked();
+
+    void on_btnVolverMenu_clicked();
+
+    void onResultadoPrincipal();
+    void onResultadoSecundario();
+
 private:
     // Puntero a los elementos de la interfaz creados visualmente.
     Ui::MainWindow *ui;
@@ -44,6 +63,7 @@ private:
     Juego *juego; // Instancia principal que controla el reglamento, turnos y cálculos.
     Jugador *jugador1; // Referencia al jugador humano (sus datos, no sus gráficos).
     Jugador *jugador2; // Referencia a la Inteligencia Artificial.
+    Configuracion* configuracion;
 
     // Elementos gráficos.
     QGraphicsScene *escena; // Escena donde se colocan y animan todas las cartas.
@@ -78,6 +98,12 @@ private:
     QLabel  *lblResultadoSubtitulo = nullptr;
     QLabel *lblImagenResultado = nullptr;
     void crearOverlayResultado();
+
+    QPushButton* btnResultadoPrincipal = nullptr;
+    QPushButton* btnResultadoSecundario = nullptr;
+
+    QLabel* lblTituloResultado = nullptr;
+    QLabel* lblFondoResultado = nullptr;
 
 protected:
     // Se usa si el usuario o el sistema intenta cambiar el tamaño de la ventana.

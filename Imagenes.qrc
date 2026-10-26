@@ -15,5 +15,46 @@
         <file>Imagenes/ELEMENTOS/VAPOR.png</file>
         <file>Imagenes/Tablero3_ajustado.png</file>
         <file>Imagenes/Derrota.png</file>
+        <file>Imagenes/Tablero_SinC.png</file>
+        <file>Imagenes/Atacar_Hover.png</file>
+        <file>Imagenes/Atacar_Normal.png</file>
+        <file>Imagenes/Atacar_Pressed.png</file>
+        <file>Imagenes/Guardar_Partida_HOVER.png</file>
+        <file>Imagenes/Guardar_Partida_NORMAL.png</file>
+        <file>Imagenes/VolverMenu_Hover.png</file>
+        <file>Imagenes/VolverMenu_Normal.png</file>
+        <file>Imagenes/Pantalla final/TituloDerrota.png</file>
+        <file>Imagenes/Pantalla final/TituloVictoria.png</file>
+        <file>Imagenes/Pantalla final/PantallaDerrota.png</file>
+        <file>Imagenes/Pantalla final/PantallaVictoria.png</file>
+        <file>Imagenes/Pantalla final/NuevaPartida_Hover.png</file>
+        <file>Imagenes/Pantalla final/NuevaPartida_Normal.png</file>
+        <file>Imagenes/Pantalla final/Reintentar_Hover.png</file>
+        <file>Imagenes/Pantalla final/Reintentar_Normal.png</file>
+        <file>Imagenes/Pantalla final/VolverMenu_HoverDerrota.png</file>
+        <file>Imagenes/Pantalla final/VolverMenu_HoverVictoria.png</file>
+        <file>Imagenes/Pantalla final/VolverMenu_NormalDerrota.png</file>
+        <file>Imagenes/Pantalla final/VolverMenu_NormalVictoria.png</file>
+        <file>Imagenes/MENU/CargarPartida_Hover.png</file>
+        <file>Imagenes/MENU/CargarPartida_Normal.png</file>
+        <file>Imagenes/MENU/NuevaPartida_Hover.png</file>
+        <file>Imagenes/MENU/NuevaPartida_Normal.png</file>
+        <file>Imagenes/MENU/Opciones_Hover.png</file>
+        <file>Imagenes/MENU/Opciones_Normal.png</file>
+        <file>Imagenes/MENU/Salir_Hover.png</file>
+        <file>Imagenes/MENU/Salir_Normal.png</file>
+        <file>Imagenes/MENU/FondoMENU.png</file>
+        <file>Imagenes/MENU/FondoMENUajustado.png</file>
+        <file>Imagenes/MENU/Elemental/TituloMENU.png</file>
+        <file>Imagenes/MENU/Vent_NuevaPartida.png</file>
+        <file>Imagenes/MENU/CrearPartida_Hover.png</file>
+        <file>Imagenes/MENU/CrearPartida_Normal.png</file>
+        <file>Imagenes/MENU/Volver_Hover.png</file>
+        <file>Imagenes/MENU/Volver_Normal.png</file>
+        <file>Imagenes/MENU/Slot_Hover.png</file>
+        <file>Imagenes/MENU/Slot_Normal.png</file>
+        <file>Imagenes/MENU/Slot_Pressed.png</file>
+        <file>Imagenes/MENU/Vent_CargarPartida.png</file>
+        <file>Imagenes/MENU/Vent_Opciones.png</file>
     </qresource>
 </RCC>

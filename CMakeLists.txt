@@ -34,6 +34,18 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         catalogoelementos.h catalogoelementos.cpp
         cartagraphicsitem.h cartagraphicsitem.cpp
         Imagenes.qrc
+        configuracion.h configuracion.cpp
+        gestorpartidas.h gestorpartidas.cpp
+        resultadoataque.h resultadoataque.cpp
+        resultadoronda.h resultadoronda.cpp
+        lectorconfiguracion.h lectorconfiguracion.cpp
+        estadopartida.h estadopartida.cpp
+        menuprincipal.h menuprincipal.cpp menuprincipal.ui
+        iaestrategica.h iaestrategica.cpp
+        superia.h superia.cpp
+
+
+
 
     )
 # Define target properties for Android with Qt 6 as:

@@ -2,7 +2,7 @@
 #define CONTRINCANTEIA_H
 
 #include "jugador.h"        // Hereda de la clase Jugador.
-#include "sistemacombate.h" // Necesita el sistema de combate para analizar ataques.
+#include "configuracion.h"
 
 // La clase ContrincanteIA representa cualquier jugador controlado por inteligencia artificial.
 class ContrincanteIA : public Jugador
@@ -17,10 +17,12 @@ public:
     // Cada IA decidirá cuál es el mejor elemento para enfrentar al enemigo.
     virtual Elemento &seleccionarContra(const Elemento &enemigo) override = 0;
 
+    void setConfiguracion(Configuracion* config);
+
+    virtual bool recalcularAnteCambio() const;
+
 protected:
-    // Objeto que contiene toda la lógica para calcular daños.
-    // Las futuras IAs podrán usarlo para tomar decisiones.
-    SistemaCombate sistema;
+    Configuracion* configuracion = nullptr;
 };
 
 #endif
