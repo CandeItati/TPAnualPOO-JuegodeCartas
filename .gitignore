@@ -1,0 +1,7 @@
+# Builds de C++ / Qt (no se entregan)
+build*/
+cmake-build-*/
+*.user
+CMakeLists.txt.user*
+*.o
+*.exe
